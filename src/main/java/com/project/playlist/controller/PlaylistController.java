@@ -44,6 +44,7 @@ public class PlaylistController {
     public ResponseEntity<Void> addVideoToPlaylist(@PathVariable Long playlistId, @PathVariable Long videoId) {
         try {
             playlistVideoService.addVideoToPlaylist(playlistId, videoId);
+            String temp = "";
             return ResponseEntity.ok().build();
         } catch (PlaylistNotFoundException | VideoNotFoundException | IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
