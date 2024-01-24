@@ -109,7 +109,6 @@ public class PlaylistVideoService {
         if (playlistOptional.isEmpty()) {
             throw new PlaylistNotFoundException(playlistId);
         }
-        Playlist playlist =  playlistOptional.get();
 
         List<PlaylistVideo> playlistVideoList = playlistVideoRepository.findByPlaylistId(playlistId);
         if (playlistVideoList == null) {
@@ -136,11 +135,7 @@ public class PlaylistVideoService {
         }
 
         if (fromPlaylistVideo != null && toPlaylistVideo != null) {
-            if (fromOrderNo > toOrderNo) {
-                changeOrderTransactional1(fromPlaylistVideo, playlistVideoList, fromOrderNo, toOrderNo);
-            } else {
-                changeOrderTransactional2(fromPlaylistVideo, playlistVideoList, fromOrderNo, toOrderNo);
-            }
+            changeOrderTransactional(fromPlaylistVideo, playlistVideoList, fromOrderNo, toOrderNo);
         } else {
             String msg = "The playlist does not have a video at one of the provided order numbers!";
             System.out.println(msg);
@@ -148,10 +143,13 @@ public class PlaylistVideoService {
         }
     }
     @Transactional
-    private void changeOrderTransactional1(PlaylistVideo fromPlaylistVideo, List<PlaylistVideo> playlistVideoList, int fromOrderNo, int toOrderNo) {
+    private void changeOrderTransactional(PlaylistVideo fromPlaylistVideo, List<PlaylistVideo> playlistVideoList, int fromOrderNo, int toOrderNo) {
+        int direction = (fromOrderNo > toOrderNo) ? 1 : -1;
+
         for (PlaylistVideo pv : playlistVideoList) {
-            if (pv.getOrderNo() >= toOrderNo && pv.getOrderNo() < fromOrderNo) {
-                pv.setOrderNo(pv.getOrderNo() + 1);
+            if ((direction == 1 && pv.getOrderNo() >= toOrderNo && pv.getOrderNo() < fromOrderNo) ||
+                    (direction == -1 && pv.getOrderNo() > fromOrderNo && pv.getOrderNo() <= toOrderNo)) {
+                pv.setOrderNo(pv.getOrderNo() + direction);
                 try {
                     playlistVideoRepository.save(pv);
                 } catch (Exception e) {
@@ -162,23 +160,6 @@ public class PlaylistVideoService {
         fromPlaylistVideo.setOrderNo(toOrderNo);
         playlistVideoRepository.save(fromPlaylistVideo);
     }
-
-    @Transactional
-    private void changeOrderTransactional2(PlaylistVideo fromPlaylistVideo, List<PlaylistVideo> playlistVideoList, int fromOrderNo, int toOrderNo) {
-        for (PlaylistVideo pv : playlistVideoList) {
-            if (pv.getOrderNo() > fromOrderNo && pv.getOrderNo() <= toOrderNo) {
-                pv.setOrderNo(pv.getOrderNo() - 1);
-                try {
-                    playlistVideoRepository.save(pv);
-                } catch (Exception e) {
-                    System.out.println(e.getMessage());
-                }
-            }
-        }
-        fromPlaylistVideo.setOrderNo(toOrderNo);
-        playlistVideoRepository.save(fromPlaylistVideo);
-    }
-
 
     public List<Video> getSortedVideosForPlaylist(Long playlistId) {
         List<PlaylistVideo> playlistVideoList = playlistVideoRepository.findByPlaylistIdOrderByOrderNo(playlistId);
