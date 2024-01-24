@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Getter
@@ -34,4 +35,18 @@ public class Video {
         this.url = url;
         this.description = description;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Video video = (Video) o;
+        return Objects.equals(id, video.id) && Objects.equals(name, video.name) && Objects.equals(url, video.url) && Objects.equals(description, video.description) && Objects.equals(user, video.user) && Objects.equals(playlistVideos, video.playlistVideos);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, url, description, user, playlistVideos);
+    }
+
 }

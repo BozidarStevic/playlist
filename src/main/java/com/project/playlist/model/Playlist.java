@@ -6,9 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Getter
@@ -32,4 +31,18 @@ public class Playlist {
         this.name = name;
         this.user = user;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Playlist playlist = (Playlist) o;
+        return Objects.equals(id, playlist.id) && Objects.equals(name, playlist.name) && Objects.equals(user, playlist.user) && Objects.equals(playlistVideos, playlist.playlistVideos);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, user, playlistVideos);
+    }
+
 }

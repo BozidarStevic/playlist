@@ -8,7 +8,6 @@ import com.project.playlist.model.Video;
 import com.project.playlist.repository.PlaylistVideoRepository;
 import com.project.playlist.repository.PlaylistRepository;
 import com.project.playlist.repository.VideoRepository;
-import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;

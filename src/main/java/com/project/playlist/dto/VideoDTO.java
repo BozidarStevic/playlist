@@ -1,10 +1,5 @@
 package com.project.playlist.dto;
 
-import com.project.playlist.model.PlaylistVideo;
-
-import java.util.Collection;
-
-import com.project.playlist.model.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

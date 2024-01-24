@@ -1,7 +1,6 @@
 package com.project.playlist.controller;
 
 import com.project.playlist.dto.PlaylistDTO;
-import com.project.playlist.dto.PlaylistVideoDTO;
 import com.project.playlist.dto.VideoDTO;
 import com.project.playlist.exceptions.PlaylistNotFoundException;
 import com.project.playlist.exceptions.VideoNotFoundException;
@@ -12,13 +11,8 @@ import com.project.playlist.model.Video;
 import com.project.playlist.service.PlaylistVideoService;
 import com.project.playlist.service.PlaylistService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.graphql.GraphQlProperties;
-import org.springframework.dao.OptimisticLockingFailureException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.net.URI;
 import java.util.List;
 
 @RestController

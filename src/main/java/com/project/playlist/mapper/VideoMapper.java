@@ -4,7 +4,6 @@ import com.project.playlist.dto.VideoDTO;
 import com.project.playlist.dto.VideoRequest;
 import com.project.playlist.model.Video;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.NullValueMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;

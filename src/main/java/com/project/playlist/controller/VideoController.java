@@ -29,7 +29,7 @@ public class VideoController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<VideoDTO>> getAllMovies() {
+    public ResponseEntity<List<VideoDTO>> getAllVideos() {
         List<Video> allVideos = videoService.getAllVideos();
         if (allVideos.isEmpty()) {
             return ResponseEntity.notFound().build();

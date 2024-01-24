@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Objects;
+
 @Entity
 @Getter
 @Setter
@@ -21,5 +23,18 @@ public class PlaylistVideo {
     @ManyToOne
     private Playlist playlist;
     private int orderNo;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PlaylistVideo that = (PlaylistVideo) o;
+        return orderNo == that.orderNo && Objects.equals(id, that.id) && Objects.equals(video, that.video) && Objects.equals(playlist, that.playlist);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, video, playlist, orderNo);
+    }
 
 }

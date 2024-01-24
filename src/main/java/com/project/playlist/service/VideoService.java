@@ -1,18 +1,14 @@
 package com.project.playlist.service;
 
 import com.project.playlist.dto.VideoRequest;
-import com.project.playlist.exceptions.PlaylistNotFoundException;
 import com.project.playlist.mapper.VideoMapper;
-import com.project.playlist.model.Playlist;
 import com.project.playlist.model.User;
 import com.project.playlist.model.Video;
-import com.project.playlist.repository.UserRepository;
 import com.project.playlist.repository.VideoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class VideoService {

@@ -8,8 +8,6 @@ import org.mapstruct.NullValueMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
 
-import java.util.List;
-
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, nullValueMappingStrategy = NullValueMappingStrategy.RETURN_DEFAULT)
 public interface PlaylistMapper {
     PlaylistMapper INSTANCE = Mappers.getMapper(PlaylistMapper.class);
