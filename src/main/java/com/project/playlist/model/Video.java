@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Objects;
 
 @Entity
@@ -27,7 +28,7 @@ public class Video {
     private User user;
     @OneToMany(mappedBy = "video", cascade = CascadeType.REMOVE, orphanRemoval = true)
     @JsonIgnore
-    private List<PlaylistVideo> playlistVideos;
+    private List<PlaylistVideo> playlistVideos = new ArrayList<>();
 
     public Video(Long id, String name, String url, String description) {
         this.id = id;

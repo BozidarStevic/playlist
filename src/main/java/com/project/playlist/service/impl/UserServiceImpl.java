@@ -2,6 +2,7 @@ package com.project.playlist.service.impl;
 
 
 import com.project.playlist.dto.UserRequest;
+import com.project.playlist.exceptions.UserAlreadyExistsException;
 import com.project.playlist.exceptions.UserNotFoundException;
 import com.project.playlist.mapper.UserMapper;
 import com.project.playlist.model.User;
@@ -19,15 +20,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User registerUser(UserRequest userRequest) {
-
-        User existingUser = userRepository.findByUsername(userRequest.getUsername());
-        if (existingUser == null) {
+        Optional<User> userOptional = userRepository.findByUsername(userRequest.getUsername());
+        if (userOptional.isEmpty()) {
             User user = UserMapper.INSTANCE.fromUserRequest(userRequest);
-//            String encodedPassword = passwordEncoder.encode(user.getPassword());
-//            user.setPassword(encodedPassword);
             return userRepository.save(user);
         } else {
-            return null;
+            throw new UserAlreadyExistsException(userRequest.getUsername());
         }
     }
 

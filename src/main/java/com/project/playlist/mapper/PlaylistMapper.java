@@ -12,9 +12,5 @@ import org.mapstruct.factory.Mappers;
 public interface PlaylistMapper {
     PlaylistMapper INSTANCE = Mappers.getMapper(PlaylistMapper.class);
 
-    public PlaylistDTO toDTO(Playlist playlist);
-    public Playlist fromRequest(PlaylistRequest playlistRequest);
-
-//    public List<PlaylistDTO> toDTOList(List<Playlist> itemCollection);
-//    public List<Playlist> fromDTOList(List<PlaylistDTO> itemDTOCollection);
+    PlaylistDTO toDTO(Playlist playlist);
 }

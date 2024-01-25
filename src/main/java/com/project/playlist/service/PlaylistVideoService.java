@@ -1,6 +1,5 @@
 package com.project.playlist.service;
 
-import com.project.playlist.model.PlaylistVideo;
 import com.project.playlist.model.Video;
 
 import java.util.List;
