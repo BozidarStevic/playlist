@@ -17,6 +17,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class PlaylistVideoServiceImpl implements PlaylistVideoService {
     @Autowired
     private VideoService videoService;
@@ -44,7 +45,6 @@ public class PlaylistVideoServiceImpl implements PlaylistVideoService {
     }
 
     @Override
-    @Transactional
     public void removeVideoFromPlaylist(Long playlistId, Long videoId) {
         playlistService.getPlaylistById(playlistId);
         videoService.getVideoById(videoId);
@@ -98,7 +98,7 @@ public class PlaylistVideoServiceImpl implements PlaylistVideoService {
             throw new IllegalArgumentException(msg);
         }
     }
-    @Transactional
+
     private void changeOrderTransactional(PlaylistVideo fromPlaylistVideo, List<PlaylistVideo> playlistVideoList, int fromOrderNo, int toOrderNo) {
         int direction = (fromOrderNo > toOrderNo) ? 1 : -1;
         for (PlaylistVideo pv : playlistVideoList) {
