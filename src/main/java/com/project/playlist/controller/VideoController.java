@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.List;
+
 @Slf4j
 @RestController
 @RequestMapping("api/videos")
@@ -28,45 +29,22 @@ public class VideoController {
     private VideoService videoService;
 
     @PostMapping()
-    public  ResponseEntity<VideoDTO> createVideo(@RequestBody VideoRequest videoRequest) {
-        try {
-            Video video = videoService.createVideo(videoRequest);
-            VideoDTO videoDTO = VideoMapper.INSTANCE.toDTO(video);
-            return ResponseEntity.created(URI.create("api/videos/" + video.getId())).body(videoDTO);
-        } catch (UserNotFoundException | DuplicateVideoUrlForUserException | IllegalArgumentException e) {
-            log.error(e.getMessage());
-            return ResponseEntity.badRequest().build();
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            return ResponseEntity.internalServerError().build();
-        }
+    public ResponseEntity<VideoDTO> createVideo(@RequestBody VideoRequest videoRequest) {
+        Video video = videoService.createVideo(videoRequest);
+        VideoDTO videoDTO = VideoMapper.INSTANCE.toDTO(video);
+        return ResponseEntity.created(URI.create("api/videos/" + video.getId())).body(videoDTO);
     }
 
     @GetMapping()
-    public ResponseEntity<List<VideoDTO>> getAllVideos() {
-        try {
-            List<Video> allVideos = videoService.getAllVideos();
-            List<VideoDTO> allVideosDTO = VideoMapper.INSTANCE.toDTOList(allVideos);
-            return ResponseEntity.ok(allVideosDTO);
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            return ResponseEntity.internalServerError().build();
-        }
+    public List<VideoDTO> getAllVideos() {
+        List<Video> allVideos = videoService.getAllVideos();
+        return VideoMapper.INSTANCE.toDTOList(allVideos);
     }
 
     @GetMapping("/{videoId}")
-    public ResponseEntity<VideoDTO> getVideoById(@PathVariable Long videoId) {
-        try {
-            Video video = videoService.getVideoById(videoId);
-            VideoDTO videoDTO = VideoMapper.INSTANCE.toDTO(video);
-            return ResponseEntity.ok(videoDTO);
-        } catch (VideoNotFoundException | IllegalArgumentException e) {
-            log.error(e.getMessage());
-            return ResponseEntity.badRequest().build();
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            return ResponseEntity.internalServerError().build();
-        }
+    public VideoDTO getVideoById(@PathVariable Long videoId) {
+        Video video = videoService.getVideoById(videoId);
+        return VideoMapper.INSTANCE.toDTO(video);
     }
 
 }

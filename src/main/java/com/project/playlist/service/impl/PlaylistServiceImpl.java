@@ -9,8 +9,6 @@ import com.project.playlist.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
 public class PlaylistServiceImpl implements PlaylistService {
     @Autowired
@@ -28,10 +26,7 @@ public class PlaylistServiceImpl implements PlaylistService {
     }
     @Override
     public Playlist getPlaylistById(Long playlistId) {
-        Optional<Playlist> playlistOptional = playlistRepository.findById(playlistId);
-        if (playlistOptional.isEmpty()) {
-            throw new PlaylistNotFoundException(playlistId);
-        }
-        return playlistOptional.get();
+        return playlistRepository.findById(playlistId)
+                .orElseThrow(() -> new PlaylistNotFoundException(playlistId));
     }
 }

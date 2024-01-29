@@ -1,6 +1,8 @@
 package com.project.playlist.exceptions;
 
-public class UserNotFoundException extends RuntimeException {
+import jakarta.persistence.EntityNotFoundException;
+
+public class UserNotFoundException extends EntityNotFoundException {
     public UserNotFoundException(Long userId) {
         super("User with id:" + userId + " not found!");
     }

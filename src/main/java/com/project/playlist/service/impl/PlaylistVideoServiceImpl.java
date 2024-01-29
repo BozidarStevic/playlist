@@ -1,8 +1,8 @@
 package com.project.playlist.service.impl;
 
 
-import com.project.playlist.model.PlaylistVideo;
 import com.project.playlist.model.Playlist;
+import com.project.playlist.model.PlaylistVideo;
 import com.project.playlist.model.Video;
 import com.project.playlist.repository.PlaylistVideoRepository;
 import com.project.playlist.service.PlaylistService;
@@ -12,9 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class PlaylistVideoServiceImpl implements PlaylistVideoService {
@@ -31,11 +31,9 @@ public class PlaylistVideoServiceImpl implements PlaylistVideoService {
         Video video = videoService.getVideoById(videoId);
 
         List<PlaylistVideo> playlistVideoList = playlist.getPlaylistVideos();
-        for (PlaylistVideo pv : playlistVideoList) {
-            if (pv.getVideo().getId().longValue() == videoId.longValue()) {
-                System.out.println("Video with id " + videoId + " already exist in playlist.");
-                return;
-            }
+        if (playlistVideoList.stream().anyMatch(pv -> pv.getVideo().getId().equals(videoId))) {
+            System.out.println("Video with id " + videoId + " already exists in playlist.");
+            return;
         }
         PlaylistVideo playlistVideo = new PlaylistVideo();
         playlistVideo.setPlaylist(playlist);
@@ -117,11 +115,7 @@ public class PlaylistVideoServiceImpl implements PlaylistVideoService {
     @Override
     public List<Video> getSortedVideosForPlaylist(Long playlistId) {
         playlistService.getPlaylistById(playlistId);
-        List<PlaylistVideo> playlistVideoList = playlistVideoRepository.findByPlaylistIdOrderByOrderNo(playlistId);
-        List<Video> videos = new ArrayList<>();
-        for (PlaylistVideo pv : playlistVideoList) {
-            videos.add(pv.getVideo());
-        }
-        return videos;
+        return playlistVideoRepository.findByPlaylistIdOrderByOrderNo(playlistId).stream()
+                .map(PlaylistVideo::getVideo).collect(Collectors.toList());
     }
 }

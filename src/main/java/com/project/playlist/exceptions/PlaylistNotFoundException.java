@@ -1,6 +1,8 @@
 package com.project.playlist.exceptions;
 
-public class PlaylistNotFoundException extends RuntimeException {
+import jakarta.persistence.EntityNotFoundException;
+
+public class PlaylistNotFoundException extends EntityNotFoundException {
     public PlaylistNotFoundException(Long playlistId) {
         super("Playlist with id:" + playlistId + " not found!");
     }

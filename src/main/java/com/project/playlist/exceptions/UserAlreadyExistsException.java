@@ -1,6 +1,8 @@
 package com.project.playlist.exceptions;
 
-public class UserAlreadyExistsException extends RuntimeException {
+import jakarta.persistence.EntityExistsException;
+
+public class UserAlreadyExistsException extends EntityExistsException {
     public UserAlreadyExistsException(String username) {
         super("User with username:" + username + " already exist!");
     }
