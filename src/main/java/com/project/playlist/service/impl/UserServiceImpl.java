@@ -11,8 +11,6 @@ import com.project.playlist.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
 public class UserServiceImpl implements UserService {
     @Autowired
@@ -20,21 +18,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User registerUser(UserRequest userRequest) {
-        Optional<User> userOptional = userRepository.findByUsername(userRequest.getUsername());
-        if (userOptional.isEmpty()) {
-            User user = UserMapper.INSTANCE.fromUserRequest(userRequest);
-            return userRepository.save(user);
-        } else {
-            throw new UserAlreadyExistsException(userRequest.getUsername());
-        }
+        userRepository.findByUsername(userRequest.getUsername())
+                .ifPresent(existingUser -> {
+                    throw new UserAlreadyExistsException(userRequest.getUsername());
+                });
+        User user = UserMapper.INSTANCE.fromUserRequest(userRequest);
+        return userRepository.save(user);
     }
 
     @Override
     public User getUserById(Long userId) {
-        Optional<User> userOptional = userRepository.findById(userId);
-        if (userOptional.isEmpty()) {
-            throw new UserNotFoundException(userId);
-        }
-        return userOptional.get();
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
     }
 }

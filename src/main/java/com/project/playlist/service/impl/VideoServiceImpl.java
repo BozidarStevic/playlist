@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class VideoServiceImpl implements VideoService {
@@ -30,22 +29,16 @@ public class VideoServiceImpl implements VideoService {
     @Override
     public Video createVideo(VideoRequest videoRequest) {
         User user = userService.getUserById(videoRequest.getUserId());
-        Optional<Video> videoOptional = videoRepository.findByUrlAndUserId(videoRequest.getUrl(), user.getId());
-        if (videoOptional.isEmpty()) {
-            Video video = VideoMapper.INSTANCE.fromRequest(videoRequest);
-            video.setUser(user);
-            return videoRepository.save(video);
-        } else {
-            throw new DuplicateVideoUrlForUserException(videoRequest.getUrl(), user.getId());
-        }
+        videoRepository.findByUrlAndUserId(videoRequest.getUrl(), user.getId())
+                .orElseThrow(() -> new DuplicateVideoUrlForUserException(videoRequest.getUrl(), user.getId()));
+        Video video = VideoMapper.INSTANCE.fromRequest(videoRequest);
+        video.setUser(user);
+        return videoRepository.save(video);
     }
 
     @Override
     public Video getVideoById(Long videoId) {
-        Optional<Video> videoOptional = videoRepository.findById(videoId);
-        if (videoOptional.isEmpty()) {
-            throw new VideoNotFoundException(videoId);
-        }
-        return videoOptional.get();
+        return videoRepository.findById(videoId)
+                .orElseThrow(() -> new VideoNotFoundException(videoId));
     }
 }
