@@ -5,7 +5,6 @@ import com.project.playlist.mapper.VideoMapper;
 import com.project.playlist.model.Video;
 import com.project.playlist.service.PlaylistVideoService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,8 +14,11 @@ import java.util.List;
 @RequestMapping("/api/playlist-videos")
 public class PlaylistVideoController {
 
-    @Autowired
-    private PlaylistVideoService playlistVideoService;
+    private final PlaylistVideoService playlistVideoService;
+
+    public PlaylistVideoController(PlaylistVideoService playlistVideoService) {
+        this.playlistVideoService = playlistVideoService;
+    }
 
     @PostMapping("/playlists/{playlistId}/videos/{videoId}")
     public void addVideoToPlaylist(@PathVariable Long playlistId, @PathVariable Long videoId) {

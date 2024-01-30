@@ -8,13 +8,16 @@ import com.project.playlist.mapper.UserMapper;
 import com.project.playlist.model.User;
 import com.project.playlist.repository.UserRepository;
 import com.project.playlist.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UserServiceImpl implements UserService {
-    @Autowired
-    private UserRepository userRepository;
+
+    private final UserRepository userRepository;
+
+    public UserServiceImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @Override
     public User registerUser(UserRequest userRequest) {

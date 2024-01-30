@@ -9,7 +9,6 @@ import com.project.playlist.repository.PlaylistVideoRepository;
 import com.project.playlist.service.PlaylistService;
 import com.project.playlist.service.PlaylistVideoService;
 import com.project.playlist.service.VideoService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,12 +18,18 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 public class PlaylistVideoServiceImpl implements PlaylistVideoService {
-    @Autowired
-    private VideoService videoService;
-    @Autowired
-    private PlaylistService playlistService;
-    @Autowired
-    private PlaylistVideoRepository playlistVideoRepository;
+
+    private final VideoService videoService;
+
+    private final PlaylistService playlistService;
+
+    private final PlaylistVideoRepository playlistVideoRepository;
+
+    public PlaylistVideoServiceImpl(VideoService videoService, PlaylistService playlistService, PlaylistVideoRepository playlistVideoRepository) {
+        this.videoService = videoService;
+        this.playlistService = playlistService;
+        this.playlistVideoRepository = playlistVideoRepository;
+    }
 
     @Override
     public void addVideoToPlaylist(Long playlistId, Long videoId) {

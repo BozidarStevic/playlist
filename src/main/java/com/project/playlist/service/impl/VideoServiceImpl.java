@@ -9,17 +9,21 @@ import com.project.playlist.model.Video;
 import com.project.playlist.repository.VideoRepository;
 import com.project.playlist.service.UserService;
 import com.project.playlist.service.VideoService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 public class VideoServiceImpl implements VideoService {
-    @Autowired
-    private VideoRepository videoRepository;
-    @Autowired
-    private UserService userService;
+
+    private final VideoRepository videoRepository;
+
+    private final UserService userService;
+
+    public VideoServiceImpl(VideoRepository videoRepository, UserService userService) {
+        this.videoRepository = videoRepository;
+        this.userService = userService;
+    }
 
     @Override
     public List<Video> getAllVideos() {

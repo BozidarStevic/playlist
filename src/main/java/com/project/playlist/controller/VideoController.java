@@ -25,8 +25,12 @@ import java.util.List;
 @RestController
 @RequestMapping("api/videos")
 public class VideoController {
-    @Autowired
-    private VideoService videoService;
+
+    private final VideoService videoService;
+
+    public VideoController(VideoService videoService) {
+        this.videoService = videoService;
+    }
 
     @PostMapping()
     public ResponseEntity<VideoDTO> createVideo(@RequestBody VideoRequest videoRequest) {
