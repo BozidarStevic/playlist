@@ -39,12 +39,12 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
     public HttpEntity<ErrorResponse> handleIllegalArgumentException(HttpServletRequest request, IllegalArgumentException cause) {
         log.error(ERROR_PROCESSING_REQUEST_TEMPLATE, cause.getClass(), cause.getMessage());
 
-        HttpStatus status = HttpStatus.NOT_FOUND;
+        HttpStatus status = HttpStatus.BAD_REQUEST;
         ResponseStatus responseStatus = AnnotationUtils.findAnnotation(cause.getClass(), ResponseStatus.class);
         if (responseStatus != null) {
             status = responseStatus.code();
         }
-        return new ResponseEntity<>(ErrorResponse.builder().type(ErrorType.NOT_FOUND).errorCode(NOT_FOUND).status(status).path(request.getRequestURI()).message(cause.getMessage()).build(), status);
+        return new ResponseEntity<>(ErrorResponse.builder().type(ErrorType.BAD_REQUEST).errorCode(BAD_REQUEST).status(status).path(request.getRequestURI()).message(cause.getMessage()).build(), status);
     }
 
     @ExceptionHandler(UserNotFoundException.class)

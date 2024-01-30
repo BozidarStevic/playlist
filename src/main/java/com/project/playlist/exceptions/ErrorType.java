@@ -3,9 +3,10 @@ package com.project.playlist.exceptions;
 public enum ErrorType {
 
     GENERAL_ERROR("10000", "Unclassified error"),
-//    INTERNAL_SERVER_ERROR("10001", "Internal server error"),
+    INTERNAL_SERVER_ERROR("10001", "Internal server error"),
     NOT_FOUND("10002", "Resource not found"),
-    CONFLICT("10003", "Resource already exists");
+    CONFLICT("10003", "Resource already exists"),
+    BAD_REQUEST("10004", "Invalid arguments");
 
     private final String code;
     private final String type;

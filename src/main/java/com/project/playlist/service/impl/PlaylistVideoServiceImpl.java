@@ -53,8 +53,7 @@ public class PlaylistVideoServiceImpl implements PlaylistVideoService {
         playlistService.getPlaylistById(playlistId);
         videoService.getVideoById(videoId);
 
-        PlaylistVideo playlistVideo = playlistVideoRepository.findByPlaylistIdAndVideoId(playlistId, videoId)
-                .orElseThrow(() -> new IllegalArgumentException("Video with id " + videoId + " is not in playlist with id " + playlistId));
+        PlaylistVideo playlistVideo = getPlaylistVideo(playlistId, videoId);
         int removedOrderNo = playlistVideo.getOrderNo();
         playlistVideoRepository.delete(playlistVideo);
 
@@ -63,6 +62,11 @@ public class PlaylistVideoServiceImpl implements PlaylistVideoService {
             pv.setOrderNo(pv.getOrderNo() - 1);
             playlistVideoRepository.save(pv);
         });
+    }
+
+    private PlaylistVideo getPlaylistVideo(Long playlistId, Long videoId) {
+        return playlistVideoRepository.findByPlaylistIdAndVideoId(playlistId, videoId)
+                .orElseThrow(() -> new IllegalArgumentException("Video with id " + videoId + " is not in playlist with id " + playlistId));
     }
 
     @Override
