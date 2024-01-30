@@ -1,6 +1,7 @@
 package com.project.playlist.service.impl;
 
 
+import com.project.playlist.exceptions.VideoAlreadyInPlaylistException;
 import com.project.playlist.model.Playlist;
 import com.project.playlist.model.PlaylistVideo;
 import com.project.playlist.model.Video;
@@ -13,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,8 +33,7 @@ public class PlaylistVideoServiceImpl implements PlaylistVideoService {
 
         List<PlaylistVideo> playlistVideoList = playlist.getPlaylistVideos();
         if (playlistVideoList.stream().anyMatch(pv -> pv.getVideo().getId().equals(videoId))) {
-            System.out.println("Video with id " + videoId + " already exists in playlist.");
-            return;
+            throw new VideoAlreadyInPlaylistException(videoId, playlistId);
         }
         PlaylistVideo playlistVideo = new PlaylistVideo();
         playlistVideo.setPlaylist(playlist);
@@ -49,23 +48,16 @@ public class PlaylistVideoServiceImpl implements PlaylistVideoService {
         playlistService.getPlaylistById(playlistId);
         videoService.getVideoById(videoId);
 
-        Optional<PlaylistVideo> playlistVideoOptional = playlistVideoRepository.findByPlaylistIdAndVideoId(playlistId, videoId);
-        if (playlistVideoOptional.isPresent()) {
-            PlaylistVideo playlistVideo = playlistVideoOptional.get();
-            int removedOrderNo = playlistVideo.getOrderNo();
-            playlistVideoRepository.delete(playlistVideo);
+        PlaylistVideo playlistVideo = playlistVideoRepository.findByPlaylistIdAndVideoId(playlistId, videoId)
+                .orElseThrow(() -> new IllegalArgumentException("Video with id " + videoId + " is not in playlist with id " + playlistId));
+        int removedOrderNo = playlistVideo.getOrderNo();
+        playlistVideoRepository.delete(playlistVideo);
 
-            List<PlaylistVideo> playlistVideoList = playlistVideoRepository.findByPlaylistId(playlistId);
-            for (PlaylistVideo pv : playlistVideoList) {
-                if (pv.getOrderNo() > removedOrderNo) {
-                    pv.setOrderNo(pv.getOrderNo() - 1);
-                    playlistVideoRepository.save(pv);
-                }
-            }
-        } else {
-            String msg = "Video with id " + videoId + " is not in playlist with id " + playlistId;
-            throw new IllegalArgumentException(msg);
-        }
+        List<PlaylistVideo> playlistVideoList = playlistVideoRepository.findByPlaylistId(playlistId);
+        playlistVideoList.stream().filter(pv -> pv.getOrderNo() > removedOrderNo).forEach(pv -> {
+            pv.setOrderNo(pv.getOrderNo() - 1);
+            playlistVideoRepository.save(pv);
+        });
     }
 
     @Override
@@ -74,42 +66,39 @@ public class PlaylistVideoServiceImpl implements PlaylistVideoService {
 
         List<PlaylistVideo> playlistVideoList = playlistVideoRepository.findByPlaylistId(playlistId);
         if (playlistVideoList.isEmpty()) {
-            String msg = "Playlist with id " + playlistId + " doesn't have any video!";
-            throw new IllegalArgumentException(msg);
+            throw new IllegalArgumentException("Playlist with id " + playlistId + " doesn't have any video!");
         }
-        if (fromOrderNo == toOrderNo || fromOrderNo < 1 || toOrderNo < 1 || fromOrderNo > playlistVideoList.size() || toOrderNo > playlistVideoList.size()) {
-            String msg = "Invalid order numbers!";
-            throw new IllegalArgumentException(msg);
+        if (areOrderNumbersOk(fromOrderNo, toOrderNo, playlistVideoList)) {
+            throw new IllegalArgumentException("Invalid order numbers!");
         }
 
-        PlaylistVideo fromPlaylistVideo = null;
-        PlaylistVideo toPlaylistVideo = null;
-        for (PlaylistVideo pv : playlistVideoList) {
-            if (pv.getOrderNo() == fromOrderNo) {
-                fromPlaylistVideo = pv;
-            } else if (pv.getOrderNo() == toOrderNo) {
-                toPlaylistVideo = pv;
-            }
-        }
-        if (fromPlaylistVideo != null && toPlaylistVideo != null) {
-            changeOrderTransactional(fromPlaylistVideo, playlistVideoList, fromOrderNo, toOrderNo);
-        } else {
-            String msg = "The playlist does not have a video with one of the provided order numbers!";
-            throw new IllegalArgumentException(msg);
-        }
+        String msg = "The playlist does not have a video with order number: ";
+        PlaylistVideo fromPlaylistVideo = playlistVideoList.stream()
+                .filter(pv -> pv.getOrderNo() == fromOrderNo).findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(msg + fromOrderNo));
+        playlistVideoList.stream()
+                .filter(pv -> (pv.getOrderNo() == toOrderNo)).findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(msg + toOrderNo));
+        changeOrderTransactional(fromPlaylistVideo, playlistVideoList, fromOrderNo, toOrderNo);
+    }
+
+    private static boolean areOrderNumbersOk(int fromOrderNo, int toOrderNo, List<PlaylistVideo> playlistVideoList) {
+        return fromOrderNo == toOrderNo || fromOrderNo < 1 || toOrderNo < 1 || fromOrderNo > playlistVideoList.size() || toOrderNo > playlistVideoList.size();
     }
 
     private void changeOrderTransactional(PlaylistVideo fromPlaylistVideo, List<PlaylistVideo> playlistVideoList, int fromOrderNo, int toOrderNo) {
         int direction = (fromOrderNo > toOrderNo) ? 1 : -1;
-        for (PlaylistVideo pv : playlistVideoList) {
-            if ((direction == 1 && pv.getOrderNo() >= toOrderNo && pv.getOrderNo() < fromOrderNo) ||
-                    (direction == -1 && pv.getOrderNo() > fromOrderNo && pv.getOrderNo() <= toOrderNo)) {
-                pv.setOrderNo(pv.getOrderNo() + direction);
-                playlistVideoRepository.save(pv);
-            }
-        }
+        playlistVideoList.stream().filter(pv -> shouldTheVideoBeMoved(fromOrderNo, toOrderNo, pv, direction)).forEach(pv -> {
+            pv.setOrderNo(pv.getOrderNo() + direction);
+            playlistVideoRepository.save(pv);
+        });
         fromPlaylistVideo.setOrderNo(toOrderNo);
         playlistVideoRepository.save(fromPlaylistVideo);
+    }
+
+    private static boolean shouldTheVideoBeMoved(int fromOrderNo, int toOrderNo, PlaylistVideo pv, int direction) {
+        return (direction == 1 && pv.getOrderNo() >= toOrderNo && pv.getOrderNo() < fromOrderNo) ||
+                (direction == -1 && pv.getOrderNo() > fromOrderNo && pv.getOrderNo() <= toOrderNo);
     }
 
     @Override
