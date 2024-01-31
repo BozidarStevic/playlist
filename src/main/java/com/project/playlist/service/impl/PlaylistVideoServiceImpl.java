@@ -32,7 +32,7 @@ public class PlaylistVideoServiceImpl implements PlaylistVideoService {
     }
 
     @Override
-    public void addVideoToPlaylist(Long playlistId, Long videoId) {
+    public PlaylistVideo addVideoToPlaylist(Long playlistId, Long videoId) {
         Playlist playlist = playlistService.getPlaylistById(playlistId);
         Video video = videoService.getVideoById(videoId);
 
@@ -45,7 +45,7 @@ public class PlaylistVideoServiceImpl implements PlaylistVideoService {
         playlistVideo.setVideo(video);
         int orderNo = playlistVideoList.size() + 1;
         playlistVideo.setOrderNo(orderNo);
-        playlistVideoRepository.save(playlistVideo);
+        return playlistVideoRepository.save(playlistVideo);
     }
 
     @Override
