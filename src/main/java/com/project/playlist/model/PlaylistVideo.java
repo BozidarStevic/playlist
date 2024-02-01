@@ -30,9 +30,24 @@ public class PlaylistVideo {
         return orderNo == that.orderNo && Objects.equals(id, that.id) && Objects.equals(video, that.video) && Objects.equals(playlist, that.playlist);
     }
 
-    @Override
+//    @Override
+//    public int hashCode() {
+//        return Objects.hash(id, video, playlist, orderNo);
+//    }
+//
+//    @Override
+//    public String toString() {
+//        return "PlaylistVideo{" +
+//                "id=" + id +
+//                ", video=" + video +
+//                ", playlist=" + playlist +
+//                ", orderNo=" + orderNo +
+//                '}';
+//    }
+
+    /*@Override
     public int hashCode() {
         return Objects.hash(id, video, playlist, orderNo);
-    }
+    }*/
 
 }

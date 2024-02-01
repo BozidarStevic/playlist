@@ -1,11 +1,10 @@
 package com.project.playlist.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -24,8 +23,8 @@ public class Video {
     private String description;
     @ManyToOne
     private User user;
+    @EqualsAndHashCode.Exclude
     @OneToMany(mappedBy = "video", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    @JsonIgnore
     private List<PlaylistVideo> playlistVideos = new ArrayList<>();
 
     public Video(Long id, String name, String url, String description) {
@@ -48,4 +47,15 @@ public class Video {
         return Objects.hash(id, name, url, description, user, playlistVideos);
     }
 
+    @Override
+    public String toString() {
+        return "Video{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", url='" + url + '\'' +
+                ", description='" + description + '\'' +
+                ", user=" + user +
+                ", playlistVideos=" + playlistVideos +
+                '}';
+    }
 }

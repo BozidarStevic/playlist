@@ -35,7 +35,6 @@ public class PlaylistVideoServiceImpl implements PlaylistVideoService {
     public PlaylistVideo addVideoToPlaylist(Long playlistId, Long videoId) {
         Playlist playlist = playlistService.getPlaylistById(playlistId);
         Video video = videoService.getVideoById(videoId);
-
         List<PlaylistVideo> playlistVideoList = playlist.getPlaylistVideos();
         if (playlistVideoList.stream().anyMatch(pv -> pv.getVideo().getId().equals(videoId))) {
             throw new VideoAlreadyInPlaylistException(videoId, playlistId);
@@ -52,11 +51,9 @@ public class PlaylistVideoServiceImpl implements PlaylistVideoService {
     public void removeVideoFromPlaylist(Long playlistId, Long videoId) {
         playlistService.getPlaylistById(playlistId);
         videoService.getVideoById(videoId);
-
         PlaylistVideo playlistVideo = getPlaylistVideo(playlistId, videoId);
         int removedOrderNo = playlistVideo.getOrderNo();
         playlistVideoRepository.delete(playlistVideo);
-
         List<PlaylistVideo> playlistVideoList = playlistVideoRepository.findByPlaylistId(playlistId);
         playlistVideoList.stream().filter(pv -> pv.getOrderNo() > removedOrderNo).forEach(pv -> {
             pv.setOrderNo(pv.getOrderNo() - 1);
@@ -72,7 +69,6 @@ public class PlaylistVideoServiceImpl implements PlaylistVideoService {
     @Override
     public void changeVideoOrder(Long playlistId, int fromOrderNo, int toOrderNo) {
         playlistService.getPlaylistById(playlistId);
-
         List<PlaylistVideo> playlistVideoList = playlistVideoRepository.findByPlaylistId(playlistId);
         if (playlistVideoList.isEmpty()) {
             throw new IllegalArgumentException("Playlist with id " + playlistId + " doesn't have any video!");
@@ -80,7 +76,6 @@ public class PlaylistVideoServiceImpl implements PlaylistVideoService {
         if (areOrderNumbersOk(fromOrderNo, toOrderNo, playlistVideoList)) {
             throw new IllegalArgumentException("Invalid order numbers!");
         }
-
         String msg = "The playlist does not have a video with order number: ";
         PlaylistVideo fromPlaylistVideo = playlistVideoList.stream()
                 .filter(pv -> pv.getOrderNo() == fromOrderNo).findFirst()
