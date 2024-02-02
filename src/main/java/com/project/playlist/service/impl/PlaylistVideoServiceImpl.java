@@ -36,7 +36,8 @@ public class PlaylistVideoServiceImpl implements PlaylistVideoService {
         Playlist playlist = playlistService.getPlaylistById(playlistId);
         Video video = videoService.getVideoById(videoId);
         List<PlaylistVideo> playlistVideoList = playlist.getPlaylistVideos();
-        if (playlistVideoList.stream().anyMatch(pv -> pv.getVideo().getId().equals(videoId))) {
+        if (playlistVideoList.stream()
+                .anyMatch(pv -> pv.getVideo().getId().equals(videoId))) {
             throw new VideoAlreadyInPlaylistException(videoId, playlistId);
         }
         PlaylistVideo playlistVideo = new PlaylistVideo();
@@ -55,10 +56,12 @@ public class PlaylistVideoServiceImpl implements PlaylistVideoService {
         int removedOrderNo = playlistVideo.getOrderNo();
         playlistVideoRepository.delete(playlistVideo);
         List<PlaylistVideo> playlistVideoList = playlistVideoRepository.findByPlaylistId(playlistId);
-        playlistVideoList.stream().filter(pv -> pv.getOrderNo() > removedOrderNo).forEach(pv -> {
-            pv.setOrderNo(pv.getOrderNo() - 1);
-            playlistVideoRepository.save(pv);
-        });
+        playlistVideoList.stream()
+                .filter(pv -> pv.getOrderNo() > removedOrderNo)
+                .forEach(pv -> {
+                    pv.setOrderNo(pv.getOrderNo() - 1);
+                    playlistVideoRepository.save(pv);
+                });
     }
 
     private PlaylistVideo getPlaylistVideo(Long playlistId, Long videoId) {
@@ -73,7 +76,7 @@ public class PlaylistVideoServiceImpl implements PlaylistVideoService {
         if (playlistVideoList.isEmpty()) {
             throw new IllegalArgumentException("Playlist with id " + playlistId + " doesn't have any video!");
         }
-        if (areOrderNumbersOk(fromOrderNo, toOrderNo, playlistVideoList)) {
+        if (areOrderNumbersIncorrect(fromOrderNo, toOrderNo, playlistVideoList)) {
             throw new IllegalArgumentException("Invalid order numbers!");
         }
         String msg = "The playlist does not have a video with order number: ";
@@ -86,16 +89,18 @@ public class PlaylistVideoServiceImpl implements PlaylistVideoService {
         changeOrderTransactional(fromPlaylistVideo, playlistVideoList, fromOrderNo, toOrderNo);
     }
 
-    private static boolean areOrderNumbersOk(int fromOrderNo, int toOrderNo, List<PlaylistVideo> playlistVideoList) {
+    private static boolean areOrderNumbersIncorrect(int fromOrderNo, int toOrderNo, List<PlaylistVideo> playlistVideoList) {
         return fromOrderNo == toOrderNo || fromOrderNo < 1 || toOrderNo < 1 || fromOrderNo > playlistVideoList.size() || toOrderNo > playlistVideoList.size();
     }
 
     private void changeOrderTransactional(PlaylistVideo fromPlaylistVideo, List<PlaylistVideo> playlistVideoList, int fromOrderNo, int toOrderNo) {
         int direction = (fromOrderNo > toOrderNo) ? 1 : -1;
-        playlistVideoList.stream().filter(pv -> shouldTheVideoBeMoved(fromOrderNo, toOrderNo, pv, direction)).forEach(pv -> {
-            pv.setOrderNo(pv.getOrderNo() + direction);
-            playlistVideoRepository.save(pv);
-        });
+        playlistVideoList.stream()
+                .filter(pv -> shouldTheVideoBeMoved(fromOrderNo, toOrderNo, pv, direction))
+                .forEach(pv -> {
+                    pv.setOrderNo(pv.getOrderNo() + direction);
+                    playlistVideoRepository.save(pv);
+                });
         fromPlaylistVideo.setOrderNo(toOrderNo);
         playlistVideoRepository.save(fromPlaylistVideo);
     }

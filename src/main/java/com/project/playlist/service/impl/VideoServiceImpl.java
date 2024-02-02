@@ -33,11 +33,16 @@ public class VideoServiceImpl implements VideoService {
     @Override
     public Video createVideo(VideoRequest videoRequest) {
         User user = userService.getUserById(videoRequest.getUserId());
-        videoRepository.findByUrlAndUserId(videoRequest.getUrl(), user.getId())
-                .orElseThrow(() -> new DuplicateVideoUrlForUserException(videoRequest.getUrl(), user.getId()));
+        getVideoByUrlAndUserId(videoRequest.getUrl(), user);
         Video video = VideoMapper.INSTANCE.fromRequest(videoRequest);
         video.setUser(user);
         return videoRepository.save(video);
+    }
+
+    @Override
+    public Video getVideoByUrlAndUserId(String url, User user) {
+        return videoRepository.findByUrlAndUserId(url, user.getId())
+                .orElseThrow(() -> new DuplicateVideoUrlForUserException(url, user.getId()));
     }
 
     @Override

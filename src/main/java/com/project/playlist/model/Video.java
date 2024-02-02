@@ -23,7 +23,6 @@ public class Video {
     private String description;
     @ManyToOne
     private User user;
-    @EqualsAndHashCode.Exclude
     @OneToMany(mappedBy = "video", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<PlaylistVideo> playlistVideos = new ArrayList<>();
 
@@ -39,12 +38,12 @@ public class Video {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Video video = (Video) o;
-        return Objects.equals(id, video.id) && Objects.equals(name, video.name) && Objects.equals(url, video.url) && Objects.equals(description, video.description) && Objects.equals(user, video.user) && Objects.equals(playlistVideos, video.playlistVideos);
+        return Objects.equals(id, video.id) && Objects.equals(name, video.name) && Objects.equals(url, video.url) && Objects.equals(description, video.description) && Objects.equals(user.getId(), video.user.getId()) && Objects.equals(playlistVideos, video.playlistVideos);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, url, description, user, playlistVideos);
+        return Objects.hash(id, name, url, description, user.getId(), playlistVideos);
     }
 
     @Override
@@ -54,7 +53,7 @@ public class Video {
                 ", name='" + name + '\'' +
                 ", url='" + url + '\'' +
                 ", description='" + description + '\'' +
-                ", user=" + user +
+                ", user=" + user.getId() +
                 ", playlistVideos=" + playlistVideos +
                 '}';
     }

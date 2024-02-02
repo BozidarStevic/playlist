@@ -33,10 +33,9 @@ public class VideoController {
     }
 
     @PostMapping()
-    public ResponseEntity<VideoDTO> createVideo(@RequestBody VideoRequest videoRequest) {
+    public VideoDTO createVideo(@RequestBody VideoRequest videoRequest) {
         Video video = videoService.createVideo(videoRequest);
-        VideoDTO videoDTO = VideoMapper.INSTANCE.toDTO(video);
-        return ResponseEntity.created(URI.create("api/videos/" + video.getId())).body(videoDTO);
+        return VideoMapper.INSTANCE.toDTO(video);
     }
 
     @GetMapping()

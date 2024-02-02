@@ -21,7 +21,6 @@ public class Playlist {
     private String name;
     @ManyToOne
     private User user;
-    @EqualsAndHashCode.Exclude
     @OneToMany(mappedBy = "playlist", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<PlaylistVideo> playlistVideos = new ArrayList<>();
 
@@ -36,12 +35,12 @@ public class Playlist {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Playlist playlist = (Playlist) o;
-        return Objects.equals(id, playlist.id) && Objects.equals(name, playlist.name) && Objects.equals(user, playlist.user) && Objects.equals(playlistVideos, playlist.playlistVideos);
+        return Objects.equals(id, playlist.id) && Objects.equals(name, playlist.name) && Objects.equals(user.getId(), playlist.user.getId()) && Objects.equals(playlistVideos, playlist.playlistVideos);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, user, playlistVideos);
+        return Objects.hash(id, name, user.getId(), playlistVideos);
     }
 
     @Override
@@ -49,7 +48,7 @@ public class Playlist {
         return "Playlist{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", user=" + user +
+                ", user=" + user.getId() +
                 ", playlistVideos=" + playlistVideos +
                 '}';
     }

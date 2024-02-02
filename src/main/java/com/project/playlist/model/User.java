@@ -1,6 +1,5 @@
 package com.project.playlist.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,23 +23,32 @@ public class User {
     private String email;
     private String password;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
-    private List<Playlist> playlist = new ArrayList<>();
+    private List<Playlist> playlists = new ArrayList<>();
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
-    private List<Video> video = new ArrayList<>();
+    private List<Video> videos = new ArrayList<>();
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return Objects.equals(id, user.id) && Objects.equals(username, user.username) && Objects.equals(email, user.email) && Objects.equals(password, user.password) && Objects.equals(playlist, user.playlist) && Objects.equals(video, user.video);
+        return Objects.equals(id, user.id) && Objects.equals(username, user.username) && Objects.equals(email, user.email) && Objects.equals(password, user.password) && Objects.equals(playlists, user.playlists) && Objects.equals(videos, user.videos);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, username, email, password, playlist, video);
+        return Objects.hash(id, username, email, password, playlists, videos);
     }
 
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", playlists=" + playlists +
+                ", videos=" + videos +
+                '}';
+    }
 }

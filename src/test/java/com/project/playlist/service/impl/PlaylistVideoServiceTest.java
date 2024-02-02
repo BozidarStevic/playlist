@@ -93,26 +93,22 @@ public class PlaylistVideoServiceTest {
                 .build();
         playlistVideoList = new ArrayList<>(List.of(playlistVideo1, playlistVideo2, playlistVideo3));
         playlist.setPlaylistVideos(playlistVideoList);
-
         playlistVideoService = new PlaylistVideoServiceImpl(videoServiceMock, playlistServiceMock, playlistVideoRepositoryMock);
-
         lenient().when(playlistServiceMock.getPlaylistById(eq(1L))).thenReturn(playlist);
         lenient().when(playlistServiceMock.getPlaylistById(eq(invalidPlaylistId))).thenThrow(PlaylistNotFoundException.class);
         lenient().when(videoServiceMock.getVideoById(eq(2L))).thenReturn(video2);
         lenient().when(videoServiceMock.getVideoById(eq(invalidVideoId))).thenThrow(VideoNotFoundException.class);
+        lenient().when(playlistVideoRepositoryMock.findByPlaylistId(1L)).thenReturn(playlistVideoList);
     }
 
     @Test
     void givenPlaylistWithVideos_whenGetSortedVideosForPlaylist_thenReturnSortedVideosForPlaylistByOrderNumber() {
         //given
-
         lenient().when(playlistVideoRepositoryMock.findByPlaylistIdOrderByOrderNo(eq(1L))).thenReturn(playlistVideoList);
-
         //when
         actualVideoList = playlistVideoService.getSortedVideosForPlaylist(1L);
-
         //then
-        verifyAll(1, 1, 0,0,0);
+        verifyAll(1, 1, 0,0,0, 0);
         assertAll(
                 () -> assertEquals("video1", actualVideoList.get(0).getName()),
                 () -> assertEquals("video2", actualVideoList.get(1).getName()),
@@ -123,26 +119,21 @@ public class PlaylistVideoServiceTest {
     @Test
     void givenNonexistentPlaylist_whenGetSortedVideosForPlaylist_thenThrowException() {
         //given
-
         //when
         Executable executable = () -> playlistVideoService.getSortedVideosForPlaylist(invalidPlaylistId);
-
         //then
-        verifyAll(0, 0, 0,0,0);
+        verifyAll(0, 0, 0,0,0, 0);
         assertThrows(PlaylistNotFoundException.class, executable);
     }
 
     @Test
     void givenNull_whenGetSortedVideosForPlaylist_thenThrowException() {
         //given
-
         lenient().when(playlistServiceMock.getPlaylistById(eq(null))).thenThrow(IllegalArgumentException.class);
-
         //when
         Executable executable = () -> playlistVideoService.getSortedVideosForPlaylist(null);
-
         //then
-        verifyAll(0, 0, 0,0,0);
+        verifyAll(0, 0, 0,0,0, 0);
         assertThrows(IllegalArgumentException.class, executable);
     }
 
@@ -154,104 +145,146 @@ public class PlaylistVideoServiceTest {
                 .video(video)
                 .orderNo(playlistVideoList.size() + 1)
                 .build();
-
         lenient().when(videoServiceMock.getVideoById(eq(4L))).thenReturn(video);
         lenient().when(playlistVideoRepositoryMock.save(playlistVideoForSave)).thenReturn(playlistVideoForSave);
-
         //when
         PlaylistVideo playlistVideo = playlistVideoService.addVideoToPlaylist(1L, 4L);
-
         //then
-        verifyAll(1, 0, 1,1,0);
+        verifyAll(1, 0, 1,1,0,0);
         assertEquals(playlistVideoForSave, playlistVideo);
     }
 
     @Test
     void givenNonexistentPlaylistAndVideo_whenAddVideoToPlaylist_thenThrowException() {
         //given
-
         //when
         Executable executable = () -> playlistVideoService.addVideoToPlaylist(invalidPlaylistId, 4L);
-
         //then
-        verifyAll(0, 0, 0,0,0);
+        verifyAll(0, 0, 0,0,0,0);
         assertThrows(PlaylistNotFoundException.class, executable);
     }
 
     @Test
     void givenPlaylistAndNonexistentVideo_whenAddVideoToPlaylist_thenThrowException() {
         //given
-
         //when
         Executable executable = () -> playlistVideoService.addVideoToPlaylist(4L, invalidVideoId);
-
         //then
-        verifyAll(0, 0, 0,0,0);
+        verifyAll(0, 0, 0,0,0,0);
         assertThrows(VideoNotFoundException.class, executable);
     }
 
     @Test
     void givenPlaylistAndVideoWhichIsAlreadyInPlaylist_whenAddVideoToPlaylist_thenThrowException() {
         //given
-
         //when
         Executable executable = () -> playlistVideoService.addVideoToPlaylist(1L, 2L);
-
         //then
-        verifyAll(0, 0, 0,0,0);
+        verifyAll(0, 0, 0,0,0,0);
         assertThrows(VideoAlreadyInPlaylistException.class, executable);
     }
 
     @Test
     void givenPlaylistAndVideo_whenRemoveVideoFromPlaylist_thenReturnNothing() {
         //given
-
         lenient().when(playlistVideoRepositoryMock.findByPlaylistIdAndVideoId(1L, 2L)).thenReturn(Optional.ofNullable(playlistVideo2));
-        lenient().when(playlistVideoRepositoryMock.findByPlaylistId(1L)).thenReturn(playlistVideoList);
         lenient().when(playlistVideoRepositoryMock.save(playlistVideo3)).thenReturn(playlistVideo3);
-
         //when
         playlistVideoService.removeVideoFromPlaylist(1L, 2L);
-
         //then
-        verifyAll(1, 0, 1,1,1);
+        verifyAll(1, 0, 1,1,1,1);
     }
 
     @Test
     void givenNonexistentPlaylistAndVideo_whenRemoveVideoFromPlaylist_thenThrowException() {
         //given
-
         //when
         Executable executable = () -> playlistVideoService.removeVideoFromPlaylist(invalidPlaylistId, 4L);
-
         //then
-        verifyAll(0, 0, 0,0,0);
+        verifyAll(0, 0, 0,0,0,0);
         assertThrows(PlaylistNotFoundException.class, executable);
     }
 
     @Test
     void givenPlaylistAndNonexistentVideo_whenRemoveVideoFromPlaylist_thenThrowException() {
         //given
-
+        lenient().when(playlistServiceMock.getPlaylistById(eq(1L))).thenReturn(playlist);
         //when
         Executable executable = () -> playlistVideoService.removeVideoFromPlaylist(1L, invalidVideoId);
-
         //then
-        verifyAll(0, 0, 0,0,0);
+        verifyAll(0, 0, 0,0,0,0);
         assertThrows(VideoNotFoundException.class, executable);
     }
 
     @Test
     void givenPlaylistAndVideoWhichIsNotInPlaylist_whenRemoveVideoFromPlaylist_thenThrowException() {
         //given
-
         lenient().when(playlistVideoRepositoryMock.findByPlaylistIdAndVideoId(1L, 4L)).thenThrow(IllegalArgumentException.class);
-
         //when
         Executable executable = () -> playlistVideoService.removeVideoFromPlaylist(1L, 4L);
-
         //then
-        verifyAll(0, 0, 0,0,0);
+        verifyAll(0, 0, 0,0,0,0);
+        assertThrows(IllegalArgumentException.class, executable);
+    }
+
+    @Test
+    void givenPlaylistAndOrderNumbers_whenChangeVideoOrder_thenReturnNothing() {
+        //given
+        //when
+        playlistVideoService.changeVideoOrder(1L, 3,2);
+        //then
+        verifyAll(1, 0, 2,0,0, 1);
+    }
+
+    @Test
+    void givenNonexistentPlaylistAndOrderNumbers_whenChangeVideoOrder_thenThrowException() {
+        //given
+        //when
+        Executable executable = () -> playlistVideoService.changeVideoOrder(invalidPlaylistId, 3,2);
+        //then
+        verifyAll(0, 0, 0,0,0,0);
+        assertThrows(PlaylistNotFoundException.class, executable);
+    }
+
+    @Test
+    void givenEmptyPlaylistAndOrderNumbers_whenChangeVideoOrder_thenThrowException() {
+        //given
+        playlistVideoList = new ArrayList<>();
+        lenient().when(playlistVideoRepositoryMock.findByPlaylistId(1L)).thenReturn(playlistVideoList);
+        //when
+        Executable executable = () -> playlistVideoService.changeVideoOrder(1L, 3,2);
+        //then
+        verifyAll(0, 0, 0,0,0,0);
+        assertThrows(IllegalArgumentException.class, executable);
+    }
+
+    @Test
+    void givenPlaylistAndEqualOrderNumbers_whenChangeVideoOrder_thenThrowException() {
+        //given
+        //when
+        Executable executable = () -> playlistVideoService.changeVideoOrder(1L, 2,2);
+        //then
+        verifyAll(0, 0, 0,0,0,0);
+        assertThrows(IllegalArgumentException.class, executable);
+    }
+
+    @Test
+    void givenPlaylistAndNegativeOrderNumbers_whenChangeVideoOrder_thenThrowException() {
+        //given
+        //when
+        Executable executable = () -> playlistVideoService.changeVideoOrder(1L, -2, -3);
+        //then
+        verifyAll(0, 0, 0,0,0,0);
+        assertThrows(IllegalArgumentException.class, executable);
+    }
+
+    @Test
+    void givenPlaylistAndOrderNumbersGreaterThanPlaylistSize_whenChangeVideoOrder_thenThrowException() {
+        //given
+        //when
+        Executable executable = () -> playlistVideoService.changeVideoOrder(1L, playlistVideoList.size() + 1, playlistVideoList.size() + 2);
+        //then
+        verifyAll(0, 0, 0,0,0,0);
         assertThrows(IllegalArgumentException.class, executable);
     }
 
@@ -261,12 +294,14 @@ public class PlaylistVideoServiceTest {
                            int playlistVideoRepositoryMockFindByPlaylistIdOrderByOrderNoNum,
                            int playlistVideoRepositoryMockSaveNum,
                            int videoServiceMockNum,
-                           int playlistVideoRepositoryMockDeleteNum) {
+                           int playlistVideoRepositoryMockDeleteNum,
+                           int playlistVideoRepositoryMockFindByPlaylistIdNum) {
         verify(playlistServiceMock, times(playlistServiceMockNum)).getPlaylistById(anyLong());
         verify(playlistVideoRepositoryMock, times(playlistVideoRepositoryMockFindByPlaylistIdOrderByOrderNoNum)).findByPlaylistIdOrderByOrderNo(anyLong());
         verify(playlistVideoRepositoryMock, times(playlistVideoRepositoryMockSaveNum)).save(any(PlaylistVideo.class));
         verify(videoServiceMock, times(videoServiceMockNum)).getVideoById(anyLong());
         verify(playlistVideoRepositoryMock, times(playlistVideoRepositoryMockDeleteNum)).delete(any(PlaylistVideo.class));
+        verify(playlistVideoRepositoryMock, times(playlistVideoRepositoryMockFindByPlaylistIdNum)).findByPlaylistId(anyLong());
     }
 
 }

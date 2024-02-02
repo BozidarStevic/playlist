@@ -27,27 +27,21 @@ public class PlaylistVideo {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         PlaylistVideo that = (PlaylistVideo) o;
-        return orderNo == that.orderNo && Objects.equals(id, that.id) && Objects.equals(video, that.video) && Objects.equals(playlist, that.playlist);
+        return orderNo == that.orderNo && Objects.equals(id, that.id) && Objects.equals(video.getId(), that.video.getId()) && Objects.equals(playlist.getId(), that.playlist.getId());
     }
 
-//    @Override
-//    public int hashCode() {
-//        return Objects.hash(id, video, playlist, orderNo);
-//    }
-//
-//    @Override
-//    public String toString() {
-//        return "PlaylistVideo{" +
-//                "id=" + id +
-//                ", video=" + video +
-//                ", playlist=" + playlist +
-//                ", orderNo=" + orderNo +
-//                '}';
-//    }
-
-    /*@Override
+    @Override
     public int hashCode() {
-        return Objects.hash(id, video, playlist, orderNo);
-    }*/
+        return Objects.hash(id, video.getId(), playlist.getId(), orderNo);
+    }
 
+    @Override
+    public String toString() {
+        return "PlaylistVideo{" +
+                "id=" + id +
+                ", video=" + video.getId() +
+                ", playlist=" + playlist.getId() +
+                ", orderNo=" + orderNo +
+                '}';
+    }
 }

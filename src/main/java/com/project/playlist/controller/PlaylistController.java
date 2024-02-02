@@ -5,10 +5,7 @@ import com.project.playlist.mapper.PlaylistMapper;
 import com.project.playlist.model.Playlist;
 import com.project.playlist.service.PlaylistService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.net.URI;
 
 @Slf4j
 @RestController
@@ -21,11 +18,10 @@ public class PlaylistController {
         this.playlistService = playlistService;
     }
 
-    @PostMapping("/users/{userId}")
-    public ResponseEntity<PlaylistDTO> createEmptyPlaylist(@PathVariable Long userId, @RequestParam String name) {
+    @PostMapping("/user/{userId}")
+    public PlaylistDTO createEmptyPlaylist(@PathVariable Long userId, @RequestParam String name) {
         Playlist playlist = playlistService.createEmptyPlaylist(userId, name);
-        PlaylistDTO playlistDTO = PlaylistMapper.INSTANCE.toDTO(playlist);
-        return ResponseEntity.created(URI.create("/api/playlists/" + playlist.getId())).body(playlistDTO);
+        return PlaylistMapper.INSTANCE.toDTO(playlist);
     }
 
     @GetMapping("/{playlistId}")
