@@ -14,7 +14,7 @@ import java.util.Objects;
 @Table(name = "playlist_video")
 public class PlaylistVideo {
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne
     private Video video;
@@ -37,32 +37,11 @@ public class PlaylistVideo {
 
     @Override
     public String toString() {
-        if (video != null && playlist != null) {
-            return "PlaylistVideo{" +
-                    "id=" + id +
-                    ", video=" + video.getId() +
-                    ", playlist=" + playlist.getId() +
-                    ", orderNo=" + orderNo +
-                    '}';
-        } else if (video == null && playlist != null) {
-            return "PlaylistVideo{" +
-                    "id=" + id +
-                    ", playlist=" + playlist.getId() +
-                    ", orderNo=" + orderNo +
-                    '}';
-        } else if (video != null) {
-            return "PlaylistVideo{" +
-                    "id=" + id +
-                    ", video=" + video.getId() +
-                    ", orderNo=" + orderNo +
-                    '}';
-        } else {
-            return "PlaylistVideo{" +
-                    "id=" + id +
-                    ", orderNo=" + orderNo +
-                    '}';
-
-        }
-
+        return "PlaylistVideo{" +
+                "id=" + id +
+                (video == null ? "" : (", video=" + video.getId())) +
+                (playlist == null ? "" : (", playlist=" + playlist.getId())) +
+                ", orderNo=" + orderNo +
+                '}';
     }
 }

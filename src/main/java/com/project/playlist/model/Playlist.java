@@ -35,29 +35,20 @@ public class Playlist {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Playlist playlist = (Playlist) o;
-        return Objects.equals(id, playlist.id) && Objects.equals(name, playlist.name) && Objects.equals(user.getId(), playlist.user.getId()) && Objects.equals(playlistVideos, playlist.playlistVideos);
+        return Objects.equals(id, playlist.id) && Objects.equals(name, playlist.name) && Objects.equals(user.getId(), playlist.user.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, user.getId(), playlistVideos);
+        return Objects.hash(id, name, user.getId());
     }
 
     @Override
     public String toString() {
-        if (user != null) {
-            return "Playlist{" +
-                    "id=" + id +
-                    ", name='" + name + '\'' +
-                ", user=" + user.getId() +
-                    ", playlistVideos=" + playlistVideos +
-                    '}';
-        } else {
-            return "Playlist{" +
-                    "id=" + id +
-                    ", name='" + name + '\'' +
-                    ", playlistVideos=" + playlistVideos +
-                    '}';
-        }
+        return "Playlist{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                (user == null ? "" : (", user=" + user.getId())) +
+                '}';
     }
 }

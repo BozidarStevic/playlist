@@ -38,33 +38,22 @@ public class Video {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Video video = (Video) o;
-        return Objects.equals(id, video.id) && Objects.equals(name, video.name) && Objects.equals(url, video.url) && Objects.equals(description, video.description) && Objects.equals(user.getId(), video.user.getId()) && Objects.equals(playlistVideos, video.playlistVideos);
+        return Objects.equals(id, video.id) && Objects.equals(name, video.name) && Objects.equals(url, video.url) && Objects.equals(description, video.description) && Objects.equals(user.getId(), video.user.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, url, description, user.getId(), playlistVideos);
+        return Objects.hash(id, name, url, description, user.getId());
     }
 
     @Override
     public String toString() {
-        if (user != null) {
-            return "Video{" +
-                    "id=" + id +
-                    ", name='" + name + '\'' +
-                    ", url='" + url + '\'' +
-                    ", description='" + description + '\'' +
-                    ", user=" + user.getId() +
-                    ", playlistVideos=" + playlistVideos +
-                    '}';
-        } else {
-            return "Video{" +
-                    "id=" + id +
-                    ", name='" + name + '\'' +
-                    ", url='" + url + '\'' +
-                    ", description='" + description + '\'' +
-                    ", playlistVideos=" + playlistVideos +
-                    '}';
-        }
+        return "Video{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", url='" + url + '\'' +
+                ", description='" + description + '\'' +
+                (user == null ? "" : (", user=" + user.getId())) +
+                '}';
     }
 }

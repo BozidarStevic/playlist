@@ -43,7 +43,6 @@ public class VideoServiceTest {
     private VideoRequest videoRequest;
     private final Long invalidUserId = 111L;
     private final Long invalidVideoId = 111L;
-    private Optional<Video> actualVideoOptional;
 
     @BeforeEach
     void setUp() {
@@ -102,7 +101,7 @@ public class VideoServiceTest {
     void givenVideoRequest_whenCreateVideo_thenCreatedVideo() {
         //given
         lenient().when(userServiceMock.getUserById(eq(1L))).thenReturn(user);
-        lenient().when(videoRepositoryMock.findByUrlAndUserId("url" ,1L)).thenReturn(Optional.empty());
+        lenient().when(videoRepositoryMock.existsByUrlAndUserId("url" ,1L)).thenReturn(false);
         lenient().when(videoRepositoryMock.save(video)).thenReturn(video1);
         //when
         actualVideo = videoService.createVideo(videoRequest);
@@ -129,7 +128,7 @@ public class VideoServiceTest {
         video1.setUrl("existingUrl");
         videoRequest.setUrl("existingUrl");
         lenient().when(userServiceMock.getUserById(eq(1L))).thenReturn(user);
-        lenient().when(videoRepositoryMock.findByUrlAndUserId("existingUrl" ,1L)).thenReturn(Optional.ofNullable(video1));
+        lenient().when(videoRepositoryMock.existsByUrlAndUserId("existingUrl" ,1L)).thenReturn(true);
         //when
         Executable executable = () -> videoService.createVideo(videoRequest);
         //then
@@ -145,42 +144,6 @@ public class VideoServiceTest {
         //then
         verifyAll(0, 0, 0, 0, 0);
         assertThrows(IllegalArgumentException.class, executable);
-    }
-
-    @Test
-    void givenUrlAndUser_whenGetVideoByUrlAndUserId_thenReturnVideo() {
-        //given
-        video1.setUrl("existingUrl");
-        lenient().when(videoRepositoryMock.findByUrlAndUserId("existingUrl" ,1L)).thenReturn(Optional.ofNullable(video1));
-        //when
-        actualVideoOptional = videoService.getVideoByUrlAndUserId("existingUrl", user);
-        //then
-        verifyAll(0, 0, 1, 0, 0);
-        assertEquals(Optional.ofNullable(video1), actualVideoOptional);
-    }
-
-    @Test
-    void givenNonexistentUrlAndUser_whenGetVideoByUrlAndUserId_thenReturnEmptyOptional() {
-        //given
-        video1.setUrl("nonexistentUrl");
-        lenient().when(videoRepositoryMock.findByUrlAndUserId("nonexistentUrl" ,1L)).thenReturn(Optional.empty());
-        //when
-        actualVideoOptional = videoService.getVideoByUrlAndUserId("nonexistentUrl", user);
-        //then
-        verifyAll(0, 0, 1, 0, 0);
-        assertEquals(Optional.empty(), actualVideoOptional);
-    }
-
-    @Test
-    void givenUrlAndNonexistentUser_whenGetVideoByUrlAndUserId_thenReturnEmptyOptional() {
-        //given
-        user.setId(invalidUserId);
-        lenient().when(videoRepositoryMock.findByUrlAndUserId("url" ,invalidUserId)).thenReturn(Optional.empty());
-        //when
-        actualVideoOptional = videoService.getVideoByUrlAndUserId("url", user);
-        //then
-        verifyAll(0, 0, 1, 0, 0);
-        assertEquals(Optional.empty(), actualVideoOptional);
     }
 
     @Test
@@ -218,13 +181,13 @@ public class VideoServiceTest {
 
     private void verifyAll(int videoRepositoryMockFindAllNum,
                            int userServiceMockGetUserByIdNum,
-                           int videoRepositoryMockFindByUrlAndUserIdNum,
+                           int videoRepositoryMockExistsByUrlAndUserIdNum,
                            int videoRepositoryMockSaveNum,
                            int videoRepositoryMockFindByIdNum
                            ) {
         verify(videoRepositoryMock, times(videoRepositoryMockFindAllNum)).findAll();
         verify(userServiceMock, times(userServiceMockGetUserByIdNum)).getUserById(anyLong());
-        verify(videoRepositoryMock, times(videoRepositoryMockFindByUrlAndUserIdNum)).findByUrlAndUserId(anyString(),anyLong());
+        verify(videoRepositoryMock, times(videoRepositoryMockExistsByUrlAndUserIdNum)).existsByUrlAndUserId(anyString(),anyLong());
         verify(videoRepositoryMock, times(videoRepositoryMockSaveNum)).save(any(Video.class));
         verify(videoRepositoryMock, times(videoRepositoryMockFindByIdNum)).findById(anyLong());
     }

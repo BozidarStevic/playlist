@@ -12,7 +12,6 @@ import com.project.playlist.service.VideoService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class VideoServiceImpl implements VideoService {
@@ -35,18 +34,12 @@ public class VideoServiceImpl implements VideoService {
     public Video createVideo(VideoRequest videoRequest) {
         if (videoRequest == null) throw new IllegalArgumentException();
         User user = userService.getUserById(videoRequest.getUserId());
-        Optional<Video> videoOptional = getVideoByUrlAndUserId(videoRequest.getUrl(), user);
-        if (videoOptional.isPresent()) {
+        if (videoRepository.existsByUrlAndUserId(videoRequest.getUrl(), user.getId())) {
             throw new DuplicateVideoUrlForUserException(videoRequest.getUrl(), user.getId());
         }
         Video video = VideoMapper.INSTANCE.fromRequest(videoRequest);
         video.setUser(user);
         return videoRepository.save(video);
-    }
-
-    @Override
-    public Optional<Video> getVideoByUrlAndUserId(String url, User user) {
-        return videoRepository.findByUrlAndUserId(url, user.getId());
     }
 
     @Override
