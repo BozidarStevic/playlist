@@ -37,11 +37,32 @@ public class PlaylistVideo {
 
     @Override
     public String toString() {
-        return "PlaylistVideo{" +
-                "id=" + id +
-                ", video=" + video.getId() +
-                ", playlist=" + playlist.getId() +
-                ", orderNo=" + orderNo +
-                '}';
+        if (video != null && playlist != null) {
+            return "PlaylistVideo{" +
+                    "id=" + id +
+                    ", video=" + video.getId() +
+                    ", playlist=" + playlist.getId() +
+                    ", orderNo=" + orderNo +
+                    '}';
+        } else if (video == null && playlist != null) {
+            return "PlaylistVideo{" +
+                    "id=" + id +
+                    ", playlist=" + playlist.getId() +
+                    ", orderNo=" + orderNo +
+                    '}';
+        } else if (video != null) {
+            return "PlaylistVideo{" +
+                    "id=" + id +
+                    ", video=" + video.getId() +
+                    ", orderNo=" + orderNo +
+                    '}';
+        } else {
+            return "PlaylistVideo{" +
+                    "id=" + id +
+                    ", orderNo=" + orderNo +
+                    '}';
+
+        }
+
     }
 }

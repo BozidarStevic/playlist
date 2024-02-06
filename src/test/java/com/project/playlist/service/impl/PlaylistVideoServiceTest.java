@@ -18,9 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.eq;
@@ -39,7 +37,7 @@ public class PlaylistVideoServiceTest {
 
     private final Long invalidPlaylistId = 111L;
     private final Long invalidVideoId = 111L;
-    List<Video> actualVideoList;
+    private List<Video> actualVideoList;
     private Playlist playlist;
     private Video video;
     private Video video1;
@@ -146,12 +144,17 @@ public class PlaylistVideoServiceTest {
                 .orderNo(playlistVideoList.size() + 1)
                 .build();
         lenient().when(videoServiceMock.getVideoById(eq(4L))).thenReturn(video);
-        lenient().when(playlistVideoRepositoryMock.save(playlistVideoForSave)).thenReturn(playlistVideoForSave);
-        //when
+        Map<Long, PlaylistVideo> database = new HashMap<>();
+        lenient().when(playlistVideoRepositoryMock.save(playlistVideoForSave)).thenAnswer(answer -> {
+            playlistVideoForSave.setId(5L);
+            database.put(playlistVideoForSave.getId(), playlistVideoForSave);
+            return playlistVideoForSave;
+        });
         PlaylistVideo playlistVideo = playlistVideoService.addVideoToPlaylist(1L, 4L);
         //then
         verifyAll(1, 0, 1,1,0,0);
         assertEquals(playlistVideoForSave, playlistVideo);
+        assertEquals(playlistVideoForSave, database.get(5L));
     }
 
     @Test
@@ -287,8 +290,6 @@ public class PlaylistVideoServiceTest {
         verifyAll(0, 0, 0,0,0,0);
         assertThrows(IllegalArgumentException.class, executable);
     }
-
-
 
     private void verifyAll(int playlistServiceMockNum,
                            int playlistVideoRepositoryMockFindByPlaylistIdOrderByOrderNoNum,

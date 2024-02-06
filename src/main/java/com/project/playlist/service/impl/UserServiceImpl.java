@@ -21,6 +21,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User registerUser(UserRequest userRequest) {
+        if (userRequest == null) throw new IllegalArgumentException();
         userRepository.findByUsername(userRequest.getUsername())
                 .ifPresent(existingUser -> {
                     throw new UserAlreadyExistsException(userRequest.getUsername());

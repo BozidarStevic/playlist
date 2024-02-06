@@ -48,13 +48,23 @@ public class Video {
 
     @Override
     public String toString() {
-        return "Video{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", url='" + url + '\'' +
-                ", description='" + description + '\'' +
-                ", user=" + user.getId() +
-                ", playlistVideos=" + playlistVideos +
-                '}';
+        if (user != null) {
+            return "Video{" +
+                    "id=" + id +
+                    ", name='" + name + '\'' +
+                    ", url='" + url + '\'' +
+                    ", description='" + description + '\'' +
+                    ", user=" + user.getId() +
+                    ", playlistVideos=" + playlistVideos +
+                    '}';
+        } else {
+            return "Video{" +
+                    "id=" + id +
+                    ", name='" + name + '\'' +
+                    ", url='" + url + '\'' +
+                    ", description='" + description + '\'' +
+                    ", playlistVideos=" + playlistVideos +
+                    '}';
+        }
     }
 }

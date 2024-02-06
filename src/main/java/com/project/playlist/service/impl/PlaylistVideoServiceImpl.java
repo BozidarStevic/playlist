@@ -81,10 +81,12 @@ public class PlaylistVideoServiceImpl implements PlaylistVideoService {
         }
         String msg = "The playlist does not have a video with order number: ";
         PlaylistVideo fromPlaylistVideo = playlistVideoList.stream()
-                .filter(pv -> pv.getOrderNo() == fromOrderNo).findFirst()
+                .filter(pv -> pv.getOrderNo() == fromOrderNo)
+                .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException(msg + fromOrderNo));
         playlistVideoList.stream()
-                .filter(pv -> (pv.getOrderNo() == toOrderNo)).findFirst()
+                .filter(pv -> (pv.getOrderNo() == toOrderNo))
+                .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException(msg + toOrderNo));
         changeOrderTransactional(fromPlaylistVideo, playlistVideoList, fromOrderNo, toOrderNo);
     }
@@ -114,6 +116,7 @@ public class PlaylistVideoServiceImpl implements PlaylistVideoService {
     public List<Video> getSortedVideosForPlaylist(Long playlistId) {
         playlistService.getPlaylistById(playlistId);
         return playlistVideoRepository.findByPlaylistIdOrderByOrderNo(playlistId).stream()
-                .map(PlaylistVideo::getVideo).collect(Collectors.toList());
+                .map(PlaylistVideo::getVideo)
+                .collect(Collectors.toList());
     }
 }

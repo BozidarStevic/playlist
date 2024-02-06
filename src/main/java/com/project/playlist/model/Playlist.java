@@ -45,11 +45,19 @@ public class Playlist {
 
     @Override
     public String toString() {
-        return "Playlist{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
+        if (user != null) {
+            return "Playlist{" +
+                    "id=" + id +
+                    ", name='" + name + '\'' +
                 ", user=" + user.getId() +
-                ", playlistVideos=" + playlistVideos +
-                '}';
+                    ", playlistVideos=" + playlistVideos +
+                    '}';
+        } else {
+            return "Playlist{" +
+                    "id=" + id +
+                    ", name='" + name + '\'' +
+                    ", playlistVideos=" + playlistVideos +
+                    '}';
+        }
     }
 }
