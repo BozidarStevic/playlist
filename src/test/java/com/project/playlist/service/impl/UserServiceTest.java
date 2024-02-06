@@ -1,8 +1,8 @@
 package com.project.playlist.service.impl;
 
 import com.project.playlist.dto.UserRequest;
-import com.project.playlist.exceptions.UserNotFoundException;
 import com.project.playlist.exceptions.UserAlreadyExistsException;
+import com.project.playlist.exceptions.UserNotFoundException;
 import com.project.playlist.model.User;
 import com.project.playlist.repository.UserRepository;
 import com.project.playlist.service.UserService;
@@ -73,32 +73,29 @@ public class UserServiceTest {
         //when
         actualUser = userService.registerUser(userRequest);
         //then
+        verifyAll(1, 1, 0);
         assertEquals(user, actualUser);
-        verify(userRepositoryMock, times(1)).findByUsername(anyString());
-        verify(userRepositoryMock, times(1)).save(any(User.class));
     }
 
     @Test
-    void givenExistingUserRequest_whenRegisterUser_thenThrowException() {
+    void givenExistingUserRequest_whenRegisterUser_thenThrowUserAlreadyExistsException() {
         //given
         lenient().when(userRepositoryMock.findByUsername(eq("existingUsername"))).thenReturn(Optional.ofNullable(existingUser));
         //when
         Executable executable = () -> userService.registerUser(existingUserRequest);
         //then
+        verifyAll(0, 0, 0);
         assertThrows(UserAlreadyExistsException.class, executable);
-        verify(userRepositoryMock, times(1)).findByUsername(anyString());
-        verify(userRepositoryMock, times(0)).save(any(User.class));
     }
 
     @Test
-    void givenNullUserRequest_whenRegisterUser_thenThrowException() {
+    void givenNullUserRequest_whenRegisterUser_thenThrowIllegalArgumentException() {
         //given
         //when
         Executable executable = () -> userService.registerUser(null);
         //then
+        verifyAll(0, 0, 0);
         assertThrows(IllegalArgumentException.class, executable);
-        verify(userRepositoryMock, times(0)).findByUsername(anyString());
-        verify(userRepositoryMock, times(0)).save(any(User.class));
     }
 
     @Test
@@ -108,30 +105,39 @@ public class UserServiceTest {
         //when
         actualUser = userService.getUserById(1L);
         //then
+        verifyAll(0, 0, 1);
         assertEquals(existingUser, actualUser);
-        verify(userRepositoryMock, times(1)).findById(anyLong());
     }
 
     @Test
-    void givenInvalidUserId_whenGetUserById_thenThrowException() {
+    void givenInvalidUserId_whenGetUserById_thenThrowUserNotFoundException() {
         //given
         lenient().when(userRepositoryMock.findById(invalidUserId)).thenReturn(Optional.empty());
         //when
         Executable executable = () -> userService.getUserById(invalidUserId);
         //then
+        verifyAll(0, 0, 0);
         assertThrows(UserNotFoundException.class, executable);
-        verify(userRepositoryMock, times(1)).findById(anyLong());
     }
 
     @Test
-    void givenNullUserId_whenGetUserById_thenThrowException() {
+    void givenNullUserId_whenGetUserById_thenThrowIllegalArgumentException() {
         //given
         lenient().when(userRepositoryMock.findById(null)).thenThrow(IllegalArgumentException.class);
         //when
         Executable executable = () -> userService.getUserById(null);
         //then
+        verifyAll(0 ,0, 0);
         assertThrows(IllegalArgumentException.class, executable);
-        verify(userRepositoryMock, times(0)).findById(anyLong());
+    }
+
+    private void verifyAll(int userRepositoryMockFindByUsernameNum,
+                           int userRepositoryMockSaveNum,
+                           int userRepositoryMockFindByIdNum
+    ) {
+        verify(userRepositoryMock, times(userRepositoryMockFindByUsernameNum)).findByUsername(anyString());
+        verify(userRepositoryMock, times(userRepositoryMockSaveNum)).save(any(User.class));
+        verify(userRepositoryMock, times(userRepositoryMockFindByIdNum)).findById(anyLong());
     }
 
 }

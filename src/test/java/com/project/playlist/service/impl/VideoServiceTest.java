@@ -94,8 +94,8 @@ public class VideoServiceTest {
         //when
         List<Video> actualVideos = videoService.getAllVideos();
         //then
+        verifyAll(1, 0, 0, 0, 0);
         assertEquals(actualVideos, videos);
-        verify(videoRepositoryMock, times(1)).findAll();
     }
 
     @Test
@@ -107,28 +107,24 @@ public class VideoServiceTest {
         //when
         actualVideo = videoService.createVideo(videoRequest);
         //then
+        verifyAll(0, 1, 1, 1, 0);
         assertEquals(video1, actualVideo);
-        verify(userServiceMock, times(1)).getUserById(anyLong());
-        verify(videoRepositoryMock, times(1)).findByUrlAndUserId(anyString(),anyLong());
-        verify(videoRepositoryMock, times(1)).save(any(Video.class));
     }
 
     @Test
-    void givenNonexistentUser_whenCreateVideo_thenThrowException() {
+    void givenNonexistentUser_whenCreateVideo_thenThrowUserNotFoundException() {
         videoRequest.setUserId(111L);
         //given
         lenient().when(userServiceMock.getUserById(eq(invalidUserId))).thenThrow(UserNotFoundException.class);
         //when
         Executable executable = () -> videoService.createVideo(videoRequest);
         //then
+        verifyAll(0, 0, 0, 0, 0);
         assertThrows(UserNotFoundException.class, executable);
-        verify(userServiceMock, times(1)).getUserById(anyLong());
-        verify(videoRepositoryMock, times(0)).findByUrlAndUserId(anyString(),anyLong());
-        verify(videoRepositoryMock, times(0)).save(any(Video.class));
     }
 
     @Test
-    void givenExistingVideoUrlForUser_whenCreateVideo_thenThrowException() {
+    void givenExistingVideoUrlForUser_whenCreateVideo_thenThrowDuplicateVideoUrlForUserException() {
         //given
         video1.setUrl("existingUrl");
         videoRequest.setUrl("existingUrl");
@@ -137,22 +133,18 @@ public class VideoServiceTest {
         //when
         Executable executable = () -> videoService.createVideo(videoRequest);
         //then
+        verifyAll(0, 0, 0, 0, 0);
         assertThrows(DuplicateVideoUrlForUserException.class, executable);
-        verify(userServiceMock, times(1)).getUserById(anyLong());
-        verify(videoRepositoryMock, times(1)).findByUrlAndUserId(anyString(),anyLong());
-        verify(videoRepositoryMock, times(0)).save(any(Video.class));
     }
 
     @Test
-    void givenNullVideoRequest_whenCreateVideo_thenThrowException() {
+    void givenNullVideoRequest_whenCreateVideo_thenThrowIllegalArgumentException() {
         //given
         //when
         Executable executable = () -> videoService.createVideo(null);
         //then
+        verifyAll(0, 0, 0, 0, 0);
         assertThrows(IllegalArgumentException.class, executable);
-        verify(userServiceMock, times(0)).getUserById(anyLong());
-        verify(videoRepositoryMock, times(0)).findByUrlAndUserId(anyString(),anyLong());
-        verify(videoRepositoryMock, times(0)).save(any(Video.class));
     }
 
     @Test
@@ -163,8 +155,8 @@ public class VideoServiceTest {
         //when
         actualVideoOptional = videoService.getVideoByUrlAndUserId("existingUrl", user);
         //then
+        verifyAll(0, 0, 1, 0, 0);
         assertEquals(Optional.ofNullable(video1), actualVideoOptional);
-        verify(videoRepositoryMock, times(1)).findByUrlAndUserId(anyString(),anyLong());
     }
 
     @Test
@@ -175,8 +167,8 @@ public class VideoServiceTest {
         //when
         actualVideoOptional = videoService.getVideoByUrlAndUserId("nonexistentUrl", user);
         //then
+        verifyAll(0, 0, 1, 0, 0);
         assertEquals(Optional.empty(), actualVideoOptional);
-        verify(videoRepositoryMock, times(1)).findByUrlAndUserId(anyString(),anyLong());
     }
 
     @Test
@@ -187,8 +179,8 @@ public class VideoServiceTest {
         //when
         actualVideoOptional = videoService.getVideoByUrlAndUserId("url", user);
         //then
+        verifyAll(0, 0, 1, 0, 0);
         assertEquals(Optional.empty(), actualVideoOptional);
-        verify(videoRepositoryMock, times(1)).findByUrlAndUserId(anyString(),anyLong());
     }
 
     @Test
@@ -198,32 +190,43 @@ public class VideoServiceTest {
         //when
         actualVideo = videoService.getVideoById(1L);
         //then
+        verifyAll(0, 0, 0, 0, 1);
         assertEquals(video1, actualVideo);
-        verify(videoRepositoryMock, times(1)).findById(anyLong());
     }
 
     @Test
-    void givenInvalidVideoId_whenGetVideoById_thenThrowException() {
+    void givenInvalidVideoId_whenGetVideoById_thenThrowVideoNotFoundException() {
         //given
         lenient().when(videoRepositoryMock.findById(invalidVideoId)).thenReturn(Optional.empty());
         //when
         Executable executable = () -> videoService.getVideoById(invalidVideoId);
         //then
+        verifyAll(0, 0, 0, 0, 0);
         assertThrows(VideoNotFoundException.class, executable);
-        verify(videoRepositoryMock, times(1)).findById(anyLong());
     }
 
     @Test
-    void givenNullVideoId_whenGetVideoById_thenThrowException() {
+    void givenNullVideoId_whenGetVideoById_thenThrowIllegalArgumentException() {
         //given
         lenient().when(videoRepositoryMock.findById(null)).thenThrow(IllegalArgumentException.class);
         //when
         Executable executable = () -> videoService.getVideoById(null);
         //then
+        verifyAll(0, 0, 0, 0, 0);
         assertThrows(IllegalArgumentException.class, executable);
-        verify(videoRepositoryMock, times(0)).findById(anyLong());
     }
 
-
+    private void verifyAll(int videoRepositoryMockFindAllNum,
+                           int userServiceMockGetUserByIdNum,
+                           int videoRepositoryMockFindByUrlAndUserIdNum,
+                           int videoRepositoryMockSaveNum,
+                           int videoRepositoryMockFindByIdNum
+                           ) {
+        verify(videoRepositoryMock, times(videoRepositoryMockFindAllNum)).findAll();
+        verify(userServiceMock, times(userServiceMockGetUserByIdNum)).getUserById(anyLong());
+        verify(videoRepositoryMock, times(videoRepositoryMockFindByUrlAndUserIdNum)).findByUrlAndUserId(anyString(),anyLong());
+        verify(videoRepositoryMock, times(videoRepositoryMockSaveNum)).save(any(Video.class));
+        verify(videoRepositoryMock, times(videoRepositoryMockFindByIdNum)).findById(anyLong());
+    }
 
 }

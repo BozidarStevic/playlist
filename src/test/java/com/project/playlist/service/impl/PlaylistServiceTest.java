@@ -77,7 +77,7 @@ public class PlaylistServiceTest {
     }
 
     @Test
-    void givenNonexistentUserAndPlaylistName_whenCreateEmptyPlaylist_thenThrowException() {
+    void givenNonexistentUserAndPlaylistName_whenCreateEmptyPlaylist_thenThrowUserNotFoundException() {
         //given
         lenient().when(userServiceMock.getUserById(eq(invalidUserId))).thenThrow(UserNotFoundException.class);
         //when
@@ -88,7 +88,7 @@ public class PlaylistServiceTest {
     }
 
     @Test
-    void givenNullUserIdAndPlaylistName_whenCreateEmptyPlaylist_thenThrowException() {
+    void givenNullUserIdAndPlaylistName_whenCreateEmptyPlaylist_thenThrowIllegalArgumentException() {
         //given
         lenient().when(userServiceMock.getUserById(eq(null))).thenThrow(IllegalArgumentException.class);
         //when
@@ -110,7 +110,7 @@ public class PlaylistServiceTest {
     }
 
     @Test
-    void givenInvalidPlaylistId_whenGetPlaylistById_thenThrowException() {
+    void givenInvalidPlaylistId_whenGetPlaylistById_thenThrowPlaylistNotFoundException() {
         //given
         lenient().when(playlistRepositoryMock.findById(invalidPlaylistId)).thenThrow(PlaylistNotFoundException.class);
         //when
@@ -121,7 +121,7 @@ public class PlaylistServiceTest {
     }
 
     @Test
-    void givenNullPlaylistId_whenGetPlaylistById_thenThrowException() {
+    void givenNullPlaylistId_whenGetPlaylistById_thenThrowIllegalArgumentException() {
         //given
         lenient().when(playlistRepositoryMock.findById(null)).thenThrow(IllegalArgumentException.class);
         //when
@@ -131,13 +131,13 @@ public class PlaylistServiceTest {
         assertThrows(IllegalArgumentException.class, executable);
     }
 
-    private void verifyAll(int userServiceMockNum,
-                           int playlistRepositoryMockNum,
-                           int userServiceMockInvalidSaveNum,
+    private void verifyAll(int userServiceMockGetUserByIdNum,
+                           int playlistRepositoryMockSaveNum,
+                           int userServiceMockGetUserByIdInvalidNum,
                            int playlistRepositoryMockFindByIdNum) {
-        verify(userServiceMock, times(userServiceMockNum)).getUserById(anyLong());
-        verify(playlistRepositoryMock, times(playlistRepositoryMockNum)).save(any(Playlist.class));
-        verify(userServiceMock, times(userServiceMockInvalidSaveNum)).getUserById(eq(invalidUserId));
+        verify(userServiceMock, times(userServiceMockGetUserByIdNum)).getUserById(anyLong());
+        verify(playlistRepositoryMock, times(playlistRepositoryMockSaveNum)).save(any(Playlist.class));
+        verify(userServiceMock, times(userServiceMockGetUserByIdInvalidNum)).getUserById(eq(invalidUserId));
         verify(playlistRepositoryMock, times(playlistRepositoryMockFindByIdNum)).findById(anyLong());
     }
 
