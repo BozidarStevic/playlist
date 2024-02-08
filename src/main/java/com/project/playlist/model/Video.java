@@ -1,19 +1,18 @@
 package com.project.playlist.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Table(name = "video")
 public class Video {
     @Id
@@ -25,13 +24,36 @@ public class Video {
     @ManyToOne
     private User user;
     @OneToMany(mappedBy = "video", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    @JsonIgnore
-    private List<PlaylistVideo> playlistVideos;
+    private List<PlaylistVideo> playlistVideos = new ArrayList<>();
 
     public Video(Long id, String name, String url, String description) {
         this.id = id;
         this.name = name;
         this.url = url;
         this.description = description;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Video video = (Video) o;
+        return Objects.equals(id, video.id) && Objects.equals(name, video.name) && Objects.equals(url, video.url) && Objects.equals(description, video.description) && Objects.equals(user.getId(), video.user.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, url, description, user.getId());
+    }
+
+    @Override
+    public String toString() {
+        return "Video{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", url='" + url + '\'' +
+                ", description='" + description + '\'' +
+                (user == null ? "" : (", user=" + user.getId())) +
+                '}';
     }
 }

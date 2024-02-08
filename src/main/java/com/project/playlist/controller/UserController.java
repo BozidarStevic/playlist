@@ -5,25 +5,27 @@ import com.project.playlist.dto.UserRequest;
 import com.project.playlist.mapper.UserMapper;
 import com.project.playlist.model.User;
 import com.project.playlist.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/users")
 public class UserController {
-    @Autowired
-    private UserService userService;
 
-    @PostMapping("users/register")
-    public ResponseEntity<UserDTO> registerNewUser(@RequestBody UserRequest userRequest) {
+    private final UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
+    @PostMapping("/register")
+    public UserDTO registerNewUser(@RequestBody UserRequest userRequest) {
         User newUser = userService.registerUser(userRequest);
-        if (newUser == null) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
-        }
-        UserDTO userDTO = UserMapper.INSTANCE.toUserDTO(newUser);
-        return ResponseEntity.ok().body(userDTO);
+        return UserMapper.INSTANCE.toUserDTO(newUser);
     }
 
 }

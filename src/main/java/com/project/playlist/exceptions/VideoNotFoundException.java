@@ -1,11 +1,8 @@
 package com.project.playlist.exceptions;
 
-public class VideoNotFoundException extends RuntimeException {
+import jakarta.persistence.EntityNotFoundException;
 
-    public VideoNotFoundException(String message) {
-        super(message);
-    }
-
+public class VideoNotFoundException extends EntityNotFoundException {
     public VideoNotFoundException(Long videoId) {
         super("Video with id:" + videoId + " not found!");
     }

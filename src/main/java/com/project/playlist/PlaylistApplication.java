@@ -10,11 +10,10 @@ import org.springframework.context.annotation.ComponentScans;
 		@ComponentScan("com.project.playlist.controller"),
 		@ComponentScan("com.project.playlist.dto"),
 		@ComponentScan("com.project.playlist.repository"),
-		@ComponentScan("com.project.playlist.configuration"),
 		@ComponentScan("com.project.playlist.service"),
+		@ComponentScan("com.project.playlist.config"),
 		@ComponentScan("com.project.playlist.model")})
 public class PlaylistApplication {
-
 	public static void main(String[] args) {
 		SpringApplication.run(PlaylistApplication.class, args);
 	}
