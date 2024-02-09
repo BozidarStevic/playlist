@@ -15,5 +15,4 @@ public class VideoDTO {
     private String url;
     private String description;
     private UserDTO user;
-//    private Collection<PlaylistVideo> playlistVideos;
 }

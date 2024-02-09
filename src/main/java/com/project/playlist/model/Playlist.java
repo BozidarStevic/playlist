@@ -1,6 +1,5 @@
 package com.project.playlist.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -23,7 +22,6 @@ public class Playlist {
     @ManyToOne
     private User user;
     @OneToMany(mappedBy = "playlist", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    @JsonIgnore
     private List<PlaylistVideo> playlistVideos = new ArrayList<>();
 
     public Playlist(Long id, String name, User user) {

@@ -5,16 +5,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PlaylistDTO {
+public class VideoForPlaylistDTO {
     private Long id;
     private String name;
+    private String url;
+    private String description;
+    private int orderNo;
     private UserDTO user;
-    private List<VideoForPlaylistDTO> videos = new ArrayList<>();
 }

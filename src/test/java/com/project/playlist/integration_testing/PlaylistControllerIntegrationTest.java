@@ -56,14 +56,14 @@ public class PlaylistControllerIntegrationTest extends MySqlIntegrationTest {
     @BeforeEach
     void setUp() throws Exception {
         user = userRepository.save(User.builder().username("username").email("email").password("pass").build());
-        video1 = videoRepository.save(Video.builder().url("url1").name("name1").description("description1").user(user).build());
-        video2 = videoRepository.save(Video.builder().url("url2").name("name2").description("description2").user(user).build());
-        playlist1 = playlistRepository.save(Playlist.builder().user(user).name("name1").build());
+        video1 = videoRepository.save(Video.builder().url("url1").name("videoName1").description("videoDescription1").user(user).build());
+        video2 = videoRepository.save(Video.builder().url("url2").name("videoName2").description("videoDescription2").user(user).build());
+        playlist1 = playlistRepository.save(Playlist.builder().user(user).name("playlistName1").build());
         pv1 = playlistVideoRepository.save(PlaylistVideo.builder().playlist(playlist1).video(video1).orderNo(1).build());
         pv2 = playlistVideoRepository.save(PlaylistVideo.builder().playlist(playlist1).video(video2).orderNo(2).build());
         playlist1.setPlaylistVideos(new ArrayList<>(List.of(pv1, pv2)));
         playlist1 = playlistRepository.save(playlist1);
-        playlist2 = playlistRepository.save(Playlist.builder().name("name2").user(user).build());
+        playlist2 = playlistRepository.save(Playlist.builder().name("playlistName2").user(user).build());
     }
 
     @Test
@@ -79,11 +79,13 @@ public class PlaylistControllerIntegrationTest extends MySqlIntegrationTest {
         Playlist playlist = playlistRepository.findById(playlistDto.getId()).get();
         //assert
         assertAll(
-                () -> assertEquals("name1", playlist.getName()),
-                () -> assertEquals("username", playlist.getUser().getUsername()),
-                () -> assertEquals("name1", playlist.getPlaylistVideos().getFirst().getVideo().getName()),
-                () -> assertEquals("name2", playlist.getPlaylistVideos().get(1).getVideo().getName()),
-                () -> assertEquals("name3", playlist.getPlaylistVideos().get(2).getVideo().getName())
+                () -> assertEquals("playlistName1", playlist.getName()),
+                () -> assertEquals("playlistName1", playlistDto.getName()),
+                () -> assertEquals("username", playlistDto.getUser().getUsername()),
+                () -> assertEquals("videoName1", playlistDto.getVideos().getFirst().getName()),
+                () -> assertEquals(1, playlistDto.getVideos().getFirst().getOrderNo()),
+                () -> assertEquals("videoName2", playlistDto.getVideos().get(1).getName()),
+                () -> assertEquals(2, playlistDto.getVideos().get(1).getOrderNo())
         );
     }
 
@@ -115,7 +117,10 @@ public class PlaylistControllerIntegrationTest extends MySqlIntegrationTest {
                 () -> assertEquals(3, allPlaylists.size()),
                 () -> assertEquals("newPlaylistName", playlist.getName()),
                 () -> assertEquals("username", playlist.getUser().getUsername()),
-                () -> assertEquals(new ArrayList<>(), playlist.getPlaylistVideos())
+                () -> assertEquals(0, playlist.getPlaylistVideos().size()),
+                () -> assertEquals("newPlaylistName", playlistDto.getName()),
+                () -> assertEquals("username", playlistDto.getUser().getUsername()),
+                () -> assertEquals(0, playlistDto.getVideos().size())
         );
     }
 
