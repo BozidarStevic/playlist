@@ -45,16 +45,21 @@ public class PlaylistVideoServiceImpl implements PlaylistVideoService {
         playlistVideo.setVideo(video);
         int orderNo = playlistVideoList.size() + 1;
         playlistVideo.setOrderNo(orderNo);
-        return playlistVideoRepository.save(playlistVideo);
+        PlaylistVideo pv = playlistVideoRepository.save(playlistVideo);
+        playlist.getPlaylistVideos().add(pv);
+        playlistService.savePlaylist(playlist);
+        return pv;
     }
 
     @Override
     public void removeVideoFromPlaylist(Long playlistId, Long videoId) {
-        playlistService.getPlaylistById(playlistId);
+        Playlist playlist = playlistService.getPlaylistById(playlistId);
         videoService.getVideoById(videoId);
         PlaylistVideo playlistVideo = getPlaylistVideo(playlistId, videoId);
         int removedOrderNo = playlistVideo.getOrderNo();
         playlistVideoRepository.delete(playlistVideo);
+        playlist.getPlaylistVideos().remove(playlistVideo);
+        playlistService.savePlaylist(playlist);
         List<PlaylistVideo> playlistVideoList = playlistVideoRepository.findByPlaylistId(playlistId);
         playlistVideoList.stream()
                 .filter(pv -> pv.getOrderNo() > removedOrderNo)

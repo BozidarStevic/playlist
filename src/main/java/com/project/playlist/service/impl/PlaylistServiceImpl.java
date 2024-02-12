@@ -33,4 +33,9 @@ public class PlaylistServiceImpl implements PlaylistService {
         return playlistRepository.findById(playlistId)
                 .orElseThrow(() -> new PlaylistNotFoundException(playlistId));
     }
+
+    @Override
+    public Playlist savePlaylist(Playlist playlist) {
+        return playlistRepository.save(playlist);
+    }
 }

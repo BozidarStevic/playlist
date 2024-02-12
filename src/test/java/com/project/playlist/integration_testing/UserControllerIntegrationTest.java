@@ -17,6 +17,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -34,6 +36,7 @@ public class UserControllerIntegrationTest extends MySqlIntegrationTest {
     private MockMvc mvc;
 
     private User user1;
+
     UserRequest userRequest;
     @BeforeEach
     void setUp() throws Exception {
@@ -58,12 +61,31 @@ public class UserControllerIntegrationTest extends MySqlIntegrationTest {
         String jsonContent = result.getResponse().getContentAsString();
         UserDTO userDTO = objectMapper.readValue(jsonContent, UserDTO.class);
         User user = userRepository.findById(userDTO.getId()).get();
+        List<User> allUsers = userRepository.findAll();
         //assert
         assertAll(
+                () -> assertEquals(2, allUsers.size()),
                 () -> assertEquals("username2", user.getUsername()),
                 () -> assertEquals("email2@gmail.com", user.getEmail()),
                 () -> assertEquals("pass2", user.getPassword())
         );
+    }
+
+    @Test
+    public void givenExistingUserId_whenRegisterNewUser_thenExpectConflictStatus() throws Exception {
+        //arrange
+        userRequest = UserRequest.builder()
+                .username("username1")
+                .email("email1@gmail.com")
+                .password("pass1")
+                .build();
+        String userRequestJson = objectMapper.writeValueAsString(userRequest);
+        //act
+        //assert
+        mvc.perform(post("/api/users/register")
+                        .content(userRequestJson)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(HttpStatus.CONFLICT.value()));
     }
 
     @Test

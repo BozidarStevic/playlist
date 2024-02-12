@@ -1,13 +1,15 @@
 package com.project.playlist.controller;
 
-import com.project.playlist.dto.VideoDTO;
+import com.project.playlist.dto.VideoForPlaylistDTO;
 import com.project.playlist.mapper.VideoMapper;
 import com.project.playlist.model.Video;
 import com.project.playlist.service.PlaylistVideoService;
+import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -21,23 +23,25 @@ public class PlaylistVideoController {
     }
 
     @PostMapping("/playlist/{playlistId}/video/{videoId}")
-    public void addVideoToPlaylist(@PathVariable Long playlistId, @PathVariable Long videoId) {
+    public void addVideoToPlaylist(@PathVariable @NotNull Long playlistId, @PathVariable @NotNull Long videoId) {
         playlistVideoService.addVideoToPlaylist(playlistId, videoId);
     }
 
     @DeleteMapping("/playlist/{playlistId}/video/{videoId}")
-    public void removeVideoFromPlaylist(@PathVariable Long playlistId, @PathVariable Long videoId) {
+    public void removeVideoFromPlaylist(@PathVariable @NotNull Long playlistId, @NotNull @PathVariable Long videoId) {
         playlistVideoService.removeVideoFromPlaylist(playlistId, videoId);
     }
 
     @PutMapping("/playlist/{playlistId}/videos/order")
-    public void changeVideoOrder(@PathVariable Long playlistId, @RequestParam int fromOrderNo, @RequestParam int toOrderNo) {
+    public void changeVideoOrder(@PathVariable @NotNull Long playlistId, @RequestParam @NotNull int fromOrderNo, @RequestParam @NotNull int toOrderNo) {
         playlistVideoService.changeVideoOrder(playlistId, fromOrderNo, toOrderNo);
     }
 
     @GetMapping("/playlist/{playlistId}/videos")
-    public List<VideoDTO> getSortedVideosForPlaylist(@PathVariable Long playlistId) {
+    public List<VideoForPlaylistDTO> getSortedVideosForPlaylist(@PathVariable @NotNull Long playlistId) {
         List<Video> videos = playlistVideoService.getSortedVideosForPlaylist(playlistId);
-        return VideoMapper.INSTANCE.toDTOList(videos);
+        return videos.stream()
+                .map(video -> VideoMapper.INSTANCE.videoToVideoForPlaylistDTO(video, videos.indexOf(video) + 1))
+                .collect(Collectors.toList());
     }
 }

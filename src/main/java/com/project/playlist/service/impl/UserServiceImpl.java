@@ -26,7 +26,7 @@ public class UserServiceImpl implements UserService {
                 .ifPresent(existingUser -> {
                     throw new UserAlreadyExistsException(userRequest.getUsername());
                 });
-        User user = UserMapper.INSTANCE.fromUserRequest(userRequest);
+        User user = UserMapper.INSTANCE.fromRequest(userRequest);
         return userRepository.save(user);
     }
 
