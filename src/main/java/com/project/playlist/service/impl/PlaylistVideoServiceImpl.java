@@ -61,12 +61,11 @@ public class PlaylistVideoServiceImpl implements PlaylistVideoService {
         playlist.getPlaylistVideos().remove(playlistVideo);
         playlistService.savePlaylist(playlist);
         List<PlaylistVideo> playlistVideoList = playlistVideoRepository.findByPlaylistId(playlistId);
-        playlistVideoList.stream()
+        List<PlaylistVideo> playlistVideosToUpdate = playlistVideoList.stream()
                 .filter(pv -> pv.getOrderNo() > removedOrderNo)
-                .forEach(pv -> {
-                    pv.setOrderNo(pv.getOrderNo() - 1);
-                    playlistVideoRepository.save(pv);
-                });
+                .peek(pv -> pv.setOrderNo(pv.getOrderNo() - 1))
+                .collect(Collectors.toList());
+        playlistVideoRepository.saveAll(playlistVideosToUpdate);
     }
 
     private PlaylistVideo getPlaylistVideo(Long playlistId, Long videoId) {
@@ -102,12 +101,11 @@ public class PlaylistVideoServiceImpl implements PlaylistVideoService {
 
     private void changeOrderTransactional(PlaylistVideo fromPlaylistVideo, List<PlaylistVideo> playlistVideoList, int fromOrderNo, int toOrderNo) {
         int direction = (fromOrderNo > toOrderNo) ? 1 : -1;
-        playlistVideoList.stream()
+        List<PlaylistVideo> playlistVideosToUpdate = playlistVideoList.stream()
                 .filter(pv -> shouldTheVideoBeMoved(fromOrderNo, toOrderNo, pv, direction))
-                .forEach(pv -> {
-                    pv.setOrderNo(pv.getOrderNo() + direction);
-                    playlistVideoRepository.save(pv);
-                });
+                .peek(pv -> pv.setOrderNo(pv.getOrderNo() + direction))
+                .collect(Collectors.toList());
+        playlistVideoRepository.saveAll(playlistVideosToUpdate);
         fromPlaylistVideo.setOrderNo(toOrderNo);
         playlistVideoRepository.save(fromPlaylistVideo);
     }
