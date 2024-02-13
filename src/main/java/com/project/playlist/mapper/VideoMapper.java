@@ -21,15 +21,5 @@ public interface VideoMapper {
 
     @Mapping(target = "orderNo", source = "orderNo")
     VideoForPlaylistDTO videoToVideoForPlaylistDTO(Video video, int orderNo);
-
-//    @Mapping(target = "id", source = "pv.video.id")
-//    @Mapping(target = "name", source = "pv.video.name")
-//    @Mapping(target = "url", source = "pv.video.url")
-//    @Mapping(target = "description", source = "pv.video.description")
-//    @Mapping(target = "orderNo", source = "pv.orderNo")
-//    @Mapping(target = "user", source = "pv.video.user")
-//    VideoForPlaylistDTO playlistVideoToVideoForPlaylistDTO(PlaylistVideo pv);
-
     List<VideoDTO> toDTOList(List<Video> videoList);
-//    List<VideoForPlaylistDTO> toVideoForPlaylistDTOList(List<PlaylistVideo> playlistVideoList);
 }
