@@ -306,7 +306,7 @@ public class PlaylistVideoControllerIntegrationTest extends MySqlIntegrationTest
     }
 
     @Test
-    public void givenExistingPlaylistIdAndFromOrderNoAndToOrderNo_whenChangeVideoOrder_thanChangedVideoOrderInPlaylist() throws Exception {
+    public void givenExistingPlaylistIdAndFromOrderNoGreaterThanToOrderNo_whenChangeVideoOrder_thanChangedVideoOrderInPlaylist() throws Exception {
         //arrange
         String playlistId = String.valueOf(playlist1.getId());
         String fromOrderNo = "4";
@@ -326,6 +326,31 @@ public class PlaylistVideoControllerIntegrationTest extends MySqlIntegrationTest
                 () -> assertEquals("videoName4", playlistVideoList.get(1).getVideo().getName()),
                 () -> assertEquals("videoName2", playlistVideoList.get(2).getVideo().getName()),
                 () -> assertEquals("videoName3", playlistVideoList.get(3).getVideo().getName()),
+                () -> assertEquals("videoName5", playlistVideoList.get(4).getVideo().getName())
+        );
+    }
+
+    @Test
+    public void givenExistingPlaylistIdAndFromOrderNoLessThanToOrderNo_whenChangeVideoOrder_thanChangedVideoOrderInPlaylist() throws Exception {
+        //arrange
+        String playlistId = String.valueOf(playlist1.getId());
+        String fromOrderNo = "2";
+        String toOrderNo = "4";
+        //act
+        mvc.perform(put("/api/playlist-videos/playlist/" + playlistId + "/videos/order?fromOrderNo="+ fromOrderNo + "&toOrderNo=" + toOrderNo)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+        Playlist playlist = playlistRepository.findById(playlist1.getId()).get();
+        List<PlaylistVideo> playlistVideoList = playlistVideoRepository.findByPlaylistIdOrderByOrderNo(playlist1.getId());
+        //assert
+        assertAll(
+                () -> assertEquals(5, playlist.getPlaylistVideos().size()),
+                () -> assertEquals(5, playlistVideoList.size()),
+                () -> assertEquals("videoName1", playlistVideoList.get(0).getVideo().getName()),
+                () -> assertEquals("videoName3", playlistVideoList.get(1).getVideo().getName()),
+                () -> assertEquals("videoName4", playlistVideoList.get(2).getVideo().getName()),
+                () -> assertEquals("videoName2", playlistVideoList.get(3).getVideo().getName()),
                 () -> assertEquals("videoName5", playlistVideoList.get(4).getVideo().getName())
         );
     }
