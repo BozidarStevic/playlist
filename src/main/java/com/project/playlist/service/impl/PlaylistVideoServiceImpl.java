@@ -116,10 +116,8 @@ public class PlaylistVideoServiceImpl implements PlaylistVideoService {
     }
 
     @Override
-    public List<Video> getSortedVideosForPlaylist(Long playlistId) {
+    public List<PlaylistVideo> getSortedPlaylistVideosForPlaylist(Long playlistId) {
         playlistService.getPlaylistById(playlistId);
-        return playlistVideoRepository.findByPlaylistIdOrderByOrderNo(playlistId).stream()
-                .map(PlaylistVideo::getVideo)
-                .collect(Collectors.toList());
+        return playlistVideoRepository.findByPlaylistIdOrderByOrderNo(playlistId);
     }
 }

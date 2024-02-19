@@ -58,16 +58,13 @@ public class UserControllerIntegrationTest extends MySqlIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
-        String jsonContent = result.getResponse().getContentAsString();
-        UserDTO userDTO = objectMapper.readValue(jsonContent, UserDTO.class);
-        User user = userRepository.findById(userDTO.getId()).get();
+        UserDTO userDTO = objectMapper.readValue(result.getResponse().getContentAsString(), UserDTO.class);
         List<User> allUsers = userRepository.findAll();
         //assert
         assertAll(
                 () -> assertEquals(2, allUsers.size()),
-                () -> assertEquals("username2", user.getUsername()),
-                () -> assertEquals("email2@gmail.com", user.getEmail()),
-                () -> assertEquals("pass2", user.getPassword())
+                () -> assertEquals("username2", userDTO.getUsername()),
+                () -> assertEquals("email2@gmail.com", userDTO.getEmail())
         );
     }
 

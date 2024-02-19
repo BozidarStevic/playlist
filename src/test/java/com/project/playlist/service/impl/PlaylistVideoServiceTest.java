@@ -37,7 +37,7 @@ public class PlaylistVideoServiceTest {
 
     private final Long invalidPlaylistId = 111L;
     private final Long invalidVideoId = 111L;
-    private List<Video> actualVideoList;
+    private List<PlaylistVideo> actualPlaylistVideoList;
     private Playlist playlist;
     private Video video;
     private Video video1;
@@ -104,13 +104,13 @@ public class PlaylistVideoServiceTest {
         //given
         lenient().when(playlistVideoRepositoryMock.findByPlaylistIdOrderByOrderNo(eq(1L))).thenReturn(playlistVideoList);
         //when
-        actualVideoList = playlistVideoService.getSortedVideosForPlaylist(1L);
+        actualPlaylistVideoList = playlistVideoService.getSortedPlaylistVideosForPlaylist(1L);
         //then
         verifyAll(1, 1, 0,0,0, 0, 0);
         assertAll(
-                () -> assertEquals("video1", actualVideoList.get(0).getName()),
-                () -> assertEquals("video2", actualVideoList.get(1).getName()),
-                () -> assertEquals("video3", actualVideoList.get(2).getName())
+                () -> assertEquals("video1", actualPlaylistVideoList.get(0).getVideo().getName()),
+                () -> assertEquals("video2", actualPlaylistVideoList.get(1).getVideo().getName()),
+                () -> assertEquals("video3", actualPlaylistVideoList.get(2).getVideo().getName())
         );
     }
 
@@ -118,7 +118,7 @@ public class PlaylistVideoServiceTest {
     void givenNonexistentPlaylist_whenGetSortedVideosForPlaylist_thenThrowPlaylistNotFoundException() {
         //given
         //when
-        Executable executable = () -> playlistVideoService.getSortedVideosForPlaylist(invalidPlaylistId);
+        Executable executable = () -> playlistVideoService.getSortedPlaylistVideosForPlaylist(invalidPlaylistId);
         //then
         verifyAll(0, 0, 0,0,0, 0, 0);
         assertThrows(PlaylistNotFoundException.class, executable);
@@ -129,7 +129,7 @@ public class PlaylistVideoServiceTest {
         //given
         lenient().when(playlistServiceMock.getPlaylistById(eq(null))).thenThrow(IllegalArgumentException.class);
         //when
-        Executable executable = () -> playlistVideoService.getSortedVideosForPlaylist(null);
+        Executable executable = () -> playlistVideoService.getSortedPlaylistVideosForPlaylist(null);
         //then
         verifyAll(0, 0, 0,0,0, 0, 0);
         assertThrows(IllegalArgumentException.class, executable);

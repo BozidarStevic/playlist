@@ -2,7 +2,7 @@ package com.project.playlist.controller;
 
 import com.project.playlist.dto.VideoForPlaylistDTO;
 import com.project.playlist.mapper.VideoMapper;
-import com.project.playlist.model.Video;
+import com.project.playlist.model.PlaylistVideo;
 import com.project.playlist.service.PlaylistVideoService;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
@@ -39,9 +39,9 @@ public class PlaylistVideoController {
 
     @GetMapping("/playlist/{playlistId}/videos")
     public List<VideoForPlaylistDTO> getSortedVideosForPlaylist(@PathVariable @NotNull Long playlistId) {
-        List<Video> videos = playlistVideoService.getSortedVideosForPlaylist(playlistId);
-        return videos.stream()
-                .map(video -> VideoMapper.INSTANCE.videoToVideoForPlaylistDTO(video, videos.indexOf(video) + 1))
+        List<PlaylistVideo> playlistVideoList = playlistVideoService.getSortedPlaylistVideosForPlaylist(playlistId);
+        return playlistVideoList.stream()
+                .map(VideoMapper.INSTANCE::playlistVideoToVideoForPlaylistDTO)
                 .collect(Collectors.toList());
     }
 }

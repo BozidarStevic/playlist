@@ -12,7 +12,6 @@ import com.project.playlist.repository.PlaylistRepository;
 import com.project.playlist.repository.PlaylistVideoRepository;
 import com.project.playlist.repository.UserRepository;
 import com.project.playlist.repository.VideoRepository;
-import com.project.playlist.service.PlaylistVideoService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,8 +42,6 @@ public class PlaylistVideoControllerIntegrationTest extends MySqlIntegrationTest
     UserRepository userRepository;
     @Autowired
     VideoRepository videoRepository;
-    @Autowired
-    PlaylistVideoService playlistVideoService;
     @Autowired
     ObjectMapper objectMapper;
     @Autowired
@@ -92,9 +89,7 @@ public class PlaylistVideoControllerIntegrationTest extends MySqlIntegrationTest
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
-        String jsonContent = result.getResponse().getContentAsString();
-        ArrayList<VideoForPlaylistDTO> videoDtoList = objectMapper.readValue(jsonContent, new TypeReference<ArrayList<VideoForPlaylistDTO>>() {
-        });
+        ArrayList<VideoForPlaylistDTO> videoDtoList = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
         //assert
         assertAll(
                 () -> assertEquals(5, videoDtoList.size()),

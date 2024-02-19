@@ -74,17 +74,16 @@ public class PlaylistControllerIntegrationTest extends MySqlIntegrationTest {
         MvcResult result = mvc.perform(get("/api/playlists/" + playlistId).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
-        String jsonContent = result.getResponse().getContentAsString();
-        PlaylistDTO playlistDto = objectMapper.readValue(jsonContent, PlaylistDTO.class);
-        Playlist playlist = playlistRepository.findById(playlistDto.getId()).get();
+        PlaylistDTO playlistDto = objectMapper.readValue(result.getResponse().getContentAsString(), PlaylistDTO.class);
         //assert
         assertAll(
-                () -> assertEquals("playlistName1", playlist.getName()),
-                () -> assertEquals("username", playlist.getUser().getUsername()),
-                () -> assertEquals("videoName1", playlist.getPlaylistVideos().getFirst().getVideo().getName()),
-                () -> assertEquals(1, playlist.getPlaylistVideos().getFirst().getOrderNo()),
-                () -> assertEquals("videoName2", playlist.getPlaylistVideos().get(1).getVideo().getName()),
-                () -> assertEquals(2, playlist.getPlaylistVideos().get(1).getOrderNo())
+                () -> assertEquals("playlistName1", playlistDto.getName()),
+                () -> assertEquals("username", playlistDto.getUser().getUsername()),
+                () -> assertEquals(2, playlistDto.getVideos().size()),
+                () -> assertEquals("videoName1", playlistDto.getVideos().getFirst().getName()),
+                () -> assertEquals(1, playlistDto.getVideos().getFirst().getOrderNo()),
+                () -> assertEquals("videoName2", playlistDto.getVideos().get(1).getName()),
+                () -> assertEquals(2, playlistDto.getVideos().get(1).getOrderNo())
         );
     }
 
@@ -107,8 +106,7 @@ public class PlaylistControllerIntegrationTest extends MySqlIntegrationTest {
         MvcResult result = mvc.perform(post("/api/playlists/user/" + userId + "?playlistName=" + playlistName).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
-        String jsonContent = result.getResponse().getContentAsString();
-        PlaylistDTO playlistDto = objectMapper.readValue(jsonContent, PlaylistDTO.class);
+        PlaylistDTO playlistDto = objectMapper.readValue(result.getResponse().getContentAsString(), PlaylistDTO.class);
         Playlist playlist = playlistRepository.findById(playlistDto.getId()).get();
         List<Playlist> allPlaylists = playlistRepository.findAll();
         //assert
@@ -116,7 +114,10 @@ public class PlaylistControllerIntegrationTest extends MySqlIntegrationTest {
                 () -> assertEquals(3, allPlaylists.size()),
                 () -> assertEquals("newPlaylistName", playlist.getName()),
                 () -> assertEquals("username", playlist.getUser().getUsername()),
-                () -> assertEquals(0, playlist.getPlaylistVideos().size())
+                () -> assertEquals(0, playlist.getPlaylistVideos().size()),
+                () -> assertEquals("newPlaylistName", playlistDto.getName()),
+                () -> assertEquals("username", playlistDto.getUser().getUsername()),
+                () -> assertEquals(0, playlistDto.getVideos().size())
         );
     }
 

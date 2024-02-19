@@ -69,17 +69,15 @@ public class VideoControllerIntegrationTest extends MySqlIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
-        String jsonContent = result.getResponse().getContentAsString();
-        VideoDTO videoDTO = objectMapper.readValue(jsonContent, VideoDTO.class);
-        Video video = videoRepository.findById(videoDTO.getId()).get();
+        VideoDTO videoDTO = objectMapper.readValue(result.getResponse().getContentAsString(), VideoDTO.class);
         List<Video> allVideos = videoRepository.findAll();
         //assert
         assertAll(
                 () -> assertEquals(3, allVideos.size()),
-                () -> assertEquals("videoName3", video.getName()),
-                () -> assertEquals("http://www.example.com/video3", video.getUrl()),
-                () -> assertEquals("videoDescription3", video.getDescription()),
-                () -> assertEquals(user.getId(), video.getUser().getId())
+                () -> assertEquals("videoName3", videoDTO.getName()),
+                () -> assertEquals("http://www.example.com/video3", videoDTO.getUrl()),
+                () -> assertEquals("videoDescription3", videoDTO.getDescription()),
+                () -> assertEquals(user.getId(), videoDTO.getUser().getId())
         );
     }
 
@@ -175,8 +173,7 @@ public class VideoControllerIntegrationTest extends MySqlIntegrationTest {
         MvcResult result = mvc.perform(get("/api/videos").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
-        String jsonContent = result.getResponse().getContentAsString();
-        ArrayList<VideoDTO> videoDtoList = objectMapper.readValue(jsonContent, new TypeReference<ArrayList<VideoDTO>>() {});
+        ArrayList<VideoDTO> videoDtoList = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
         //assert
         assertAll(
                 () -> assertEquals(2, videoDtoList.size()),
@@ -193,8 +190,7 @@ public class VideoControllerIntegrationTest extends MySqlIntegrationTest {
         MvcResult result = mvc.perform(get("/api/videos/" + videoId).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
-        String jsonContent = result.getResponse().getContentAsString();
-        VideoDTO videoDto = objectMapper.readValue(jsonContent, VideoDTO.class);
+        VideoDTO videoDto = objectMapper.readValue(result.getResponse().getContentAsString(), VideoDTO.class);
         //assert
         assertAll(
                 () -> assertEquals("videoName1", videoDto.getName()),
