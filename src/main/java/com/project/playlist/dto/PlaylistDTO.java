@@ -1,13 +1,12 @@
 package com.project.playlist.dto;
 
-import com.project.playlist.model.PlaylistVideo;
-import com.project.playlist.model.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -16,6 +15,6 @@ import java.util.Collection;
 public class PlaylistDTO {
     private Long id;
     private String name;
-    private User user;
-    private Collection<PlaylistVideo> playlistVideos;
+    private UserDTO user;
+    private List<VideoForPlaylistDTO> videos = new ArrayList<>();
 }

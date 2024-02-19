@@ -5,7 +5,9 @@ import com.project.playlist.dto.UserRequest;
 import com.project.playlist.mapper.UserMapper;
 import com.project.playlist.model.User;
 import com.project.playlist.service.UserService;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,9 +25,10 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public UserDTO registerNewUser(@RequestBody UserRequest userRequest) {
+    @Validated
+    public UserDTO registerNewUser(@RequestBody @Valid UserRequest userRequest) {
         User newUser = userService.registerUser(userRequest);
-        return UserMapper.INSTANCE.toUserDTO(newUser);
+        return UserMapper.INSTANCE.toDTO(newUser);
     }
 
 }

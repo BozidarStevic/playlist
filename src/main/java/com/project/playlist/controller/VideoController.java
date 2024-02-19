@@ -1,29 +1,21 @@
 package com.project.playlist.controller;
 
-import com.project.playlist.dto.PlaylistDTO;
 import com.project.playlist.dto.VideoDTO;
 import com.project.playlist.dto.VideoRequest;
-import com.project.playlist.exceptions.DuplicateVideoUrlForUserException;
-import com.project.playlist.exceptions.PlaylistNotFoundException;
-import com.project.playlist.exceptions.UserNotFoundException;
-import com.project.playlist.exceptions.VideoNotFoundException;
-import com.project.playlist.mapper.PlaylistMapper;
 import com.project.playlist.mapper.VideoMapper;
-import com.project.playlist.model.Playlist;
 import com.project.playlist.model.Video;
 import com.project.playlist.service.VideoService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
 import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("api/videos")
+@RequestMapping("/api/videos")
 public class VideoController {
 
     private final VideoService videoService;
@@ -33,7 +25,8 @@ public class VideoController {
     }
 
     @PostMapping()
-    public VideoDTO createVideo(@RequestBody VideoRequest videoRequest) {
+    @Validated
+    public VideoDTO createVideo(@RequestBody @Valid VideoRequest videoRequest) {
         Video video = videoService.createVideo(videoRequest);
         return VideoMapper.INSTANCE.toDTO(video);
     }
@@ -45,7 +38,7 @@ public class VideoController {
     }
 
     @GetMapping("/{videoId}")
-    public VideoDTO getVideoById(@PathVariable Long videoId) {
+    public VideoDTO getVideoById(@PathVariable @NotNull Long videoId) {
         Video video = videoService.getVideoById(videoId);
         return VideoMapper.INSTANCE.toDTO(video);
     }
