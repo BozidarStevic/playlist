@@ -4,27 +4,29 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.playlist.dto.VideoForPlaylistDTO;
 import com.project.playlist.integration_testing.util.MySqlIntegrationTest;
-import com.project.playlist.model.Playlist;
-import com.project.playlist.model.PlaylistVideo;
-import com.project.playlist.model.User;
-import com.project.playlist.model.Video;
-import com.project.playlist.repository.PlaylistRepository;
-import com.project.playlist.repository.PlaylistVideoRepository;
-import com.project.playlist.repository.UserRepository;
-import com.project.playlist.repository.VideoRepository;
+import com.project.playlist.model.*;
+import com.project.playlist.repository.*;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.test.context.support.TestExecutionEvent;
+import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -33,7 +35,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration
 public class PlaylistVideoControllerIntegrationTest extends MySqlIntegrationTest {
+    @Autowired
+    PasswordEncoder passwordEncoder;
     @Autowired
     private PlaylistVideoRepository playlistVideoRepository;
     @Autowired
@@ -41,16 +47,19 @@ public class PlaylistVideoControllerIntegrationTest extends MySqlIntegrationTest
     @Autowired
     UserRepository userRepository;
     @Autowired
+    RoleRepository roleRepository;
+    @Autowired
     VideoRepository videoRepository;
     @Autowired
     ObjectMapper objectMapper;
     @Autowired
     private MockMvc mvc;
 
-    private User user;
+    private User user, testUser;
     private Video video1, video2, video3, video4, video5, video6New;
     private Playlist playlist1, playlist2;
     private PlaylistVideo pv1, pv2, pv3, pv4, pv5;
+    private Role testRole;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -70,9 +79,16 @@ public class PlaylistVideoControllerIntegrationTest extends MySqlIntegrationTest
         playlist1.setPlaylistVideos(new ArrayList<>(List.of(pv1, pv2, pv3, pv4, pv5)));
         playlist1 = playlistRepository.save(playlist1);
         playlist2 = playlistRepository.save(Playlist.builder().name("playlistName2").user(user).build());
+
+        //Authentication
+        testRole = roleRepository.save(Role.builder().name("ROLE_USER").build());
+        Set<Role> roles = new HashSet<>();
+        roles.add(testRole);
+        testUser = userRepository.save(User.builder().username("username1").email("email1@gmail.com").password(passwordEncoder.encode("pass1")).roles(roles).build());
     }
 
     @Test
+    @WithUserDetails(value = "username1", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     public void givenUnsortedPlaylistAndExistingPlaylistId_whenGetSortedVideosForPlaylist_thenReturnSortedVideosForPlaylist() throws Exception {
         //arrange
         pv1.setOrderNo(5);
@@ -107,6 +123,7 @@ public class PlaylistVideoControllerIntegrationTest extends MySqlIntegrationTest
     }
 
     @Test
+    @WithUserDetails(value = "username1", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     public void givenNonExistingPlaylistId_whenGetSortedVideosForPlaylist_thenExpectNotFoundStatus() throws Exception {
         //arrange
         String playlistId = "99999";
@@ -118,6 +135,7 @@ public class PlaylistVideoControllerIntegrationTest extends MySqlIntegrationTest
     }
 
     @Test
+    @WithUserDetails(value = "username1", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     public void givenNullPlaylistId_whenGetSortedVideosForPlaylist_thenExpectBadRequestStatus() throws Exception {
         //arrange
         String playlistId = null;
@@ -129,6 +147,7 @@ public class PlaylistVideoControllerIntegrationTest extends MySqlIntegrationTest
     }
 
     @Test
+    @WithUserDetails(value = "username1", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     public void givenExistingPlaylistIdAndVideoIdNotInPlaylist_whenAddVideoToPlaylist_thanAddedVideoToPlaylist() throws Exception {
         //arrange
         String playlistId = String.valueOf(playlist1.getId());
@@ -148,6 +167,7 @@ public class PlaylistVideoControllerIntegrationTest extends MySqlIntegrationTest
     }
 
     @Test
+    @WithUserDetails(value = "username1", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     public void givenExistingPlaylistIdAndVideoIdAlreadyInPlaylist_whenAddVideoToPlaylist_thenExpectConflictStatus() throws Exception {
         //arrange
         String playlistId = String.valueOf(playlist1.getId());
@@ -160,6 +180,7 @@ public class PlaylistVideoControllerIntegrationTest extends MySqlIntegrationTest
     }
 
     @Test
+    @WithUserDetails(value = "username1", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     public void givenNonExistingPlaylistId_whenAddVideoToPlaylist_thenExpectNotFoundStatus() throws Exception {
         //arrange
         String playlistId = "99999";
@@ -172,6 +193,7 @@ public class PlaylistVideoControllerIntegrationTest extends MySqlIntegrationTest
     }
 
     @Test
+    @WithUserDetails(value = "username1", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     public void givenNullPlaylistId_whenAddVideoToPlaylist_thenExpectBadRequestStatus() throws Exception {
         //arrange
         String playlistId = null;
@@ -184,6 +206,7 @@ public class PlaylistVideoControllerIntegrationTest extends MySqlIntegrationTest
     }
 
     @Test
+    @WithUserDetails(value = "username1", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     public void givenNonExistingVideoId_whenAddVideoToPlaylist_thenExpectNotFoundStatus() throws Exception {
         //arrange
         String playlistId = String.valueOf(playlist1.getId());
@@ -196,6 +219,7 @@ public class PlaylistVideoControllerIntegrationTest extends MySqlIntegrationTest
     }
 
     @Test
+    @WithUserDetails(value = "username1", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     public void givenNullVideoId_whenAddVideoToPlaylist_thenExpectBadRequestStatus() throws Exception {
         //arrange
         String playlistId = String.valueOf(playlist1.getId());
@@ -208,6 +232,7 @@ public class PlaylistVideoControllerIntegrationTest extends MySqlIntegrationTest
     }
 
     @Test
+    @WithUserDetails(value = "username1", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     public void givenExistingPlaylistIdAndVideoIdInPlaylist_whenRemoveVideoFromPlaylist_thanRemovedVideoFromPlaylist() throws Exception {
         //arrange
         String playlistId = String.valueOf(playlist1.getId());
@@ -241,6 +266,7 @@ public class PlaylistVideoControllerIntegrationTest extends MySqlIntegrationTest
     }
 
     @Test
+    @WithUserDetails(value = "username1", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     public void givenExistingPlaylistIdAndVideoIdNotInPlaylist_whenRemoveVideoFromPlaylist_thenExpectBadRequestStatus() throws Exception {
         //arrange
         String playlistId = String.valueOf(playlist1.getId());
@@ -253,6 +279,7 @@ public class PlaylistVideoControllerIntegrationTest extends MySqlIntegrationTest
     }
 
     @Test
+    @WithUserDetails(value = "username1", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     public void givenNullPlaylistId_whenRemoveVideoFromPlaylist_thenExpectBadRequestStatus() throws Exception {
         //arrange
         String playlistId = null;
@@ -265,6 +292,7 @@ public class PlaylistVideoControllerIntegrationTest extends MySqlIntegrationTest
     }
 
     @Test
+    @WithUserDetails(value = "username1", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     public void givenNullVideoId_whenRemoveVideoFromPlaylist_thenExpectBadRequestStatus() throws Exception {
         //arrange
         String playlistId = String.valueOf(playlist1.getId());
@@ -277,6 +305,7 @@ public class PlaylistVideoControllerIntegrationTest extends MySqlIntegrationTest
     }
 
     @Test
+    @WithUserDetails(value = "username1", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     public void givenNonExistingPlaylistId_whenRemoveVideoFromPlaylist_thenExpectNotFoundStatus() throws Exception {
         //arrange
         String playlistId = "99999";
@@ -289,6 +318,7 @@ public class PlaylistVideoControllerIntegrationTest extends MySqlIntegrationTest
     }
 
     @Test
+    @WithUserDetails(value = "username1", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     public void givenNonExistingVideoId_whenRemoveVideoFromPlaylist_thenExpectNotFoundStatus() throws Exception {
         //arrange
         String playlistId = String.valueOf(playlist1.getId());
@@ -301,6 +331,7 @@ public class PlaylistVideoControllerIntegrationTest extends MySqlIntegrationTest
     }
 
     @Test
+    @WithUserDetails(value = "username1", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     public void givenExistingPlaylistIdAndFromOrderNoGreaterThanToOrderNo_whenChangeVideoOrder_thanChangedVideoOrderInPlaylist() throws Exception {
         //arrange
         String playlistId = String.valueOf(playlist1.getId());
@@ -326,6 +357,7 @@ public class PlaylistVideoControllerIntegrationTest extends MySqlIntegrationTest
     }
 
     @Test
+    @WithUserDetails(value = "username1", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     public void givenExistingPlaylistIdAndFromOrderNoLessThanToOrderNo_whenChangeVideoOrder_thanChangedVideoOrderInPlaylist() throws Exception {
         //arrange
         String playlistId = String.valueOf(playlist1.getId());
@@ -351,6 +383,7 @@ public class PlaylistVideoControllerIntegrationTest extends MySqlIntegrationTest
     }
 
     @Test
+    @WithUserDetails(value = "username1", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     public void givenNullPlaylistId_whenChangeVideoOrder_thenExpectBadRequestStatus() throws Exception {
         //arrange
         String playlistId = null;
@@ -364,6 +397,7 @@ public class PlaylistVideoControllerIntegrationTest extends MySqlIntegrationTest
     }
 
     @Test
+    @WithUserDetails(value = "username1", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     public void givenNullFromOrderNo_whenChangeVideoOrder_thenExpectBadRequestStatus() throws Exception {
         //arrange
         String playlistId = String.valueOf(playlist1.getId());
@@ -377,6 +411,7 @@ public class PlaylistVideoControllerIntegrationTest extends MySqlIntegrationTest
     }
 
     @Test
+    @WithUserDetails(value = "username1", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     public void givenNullToOrderNo_whenChangeVideoOrder_thenExpectBadRequestStatus() throws Exception {
         //arrange
         String playlistId = String.valueOf(playlist1.getId());
@@ -390,6 +425,7 @@ public class PlaylistVideoControllerIntegrationTest extends MySqlIntegrationTest
     }
 
     @Test
+    @WithUserDetails(value = "username1", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     public void givenNonExistingPlaylistId_whenChangeVideoOrder_thenExpectNotFoundStatus() throws Exception {
         //arrange
         String playlistId = "99999";
@@ -403,6 +439,7 @@ public class PlaylistVideoControllerIntegrationTest extends MySqlIntegrationTest
     }
 
     @Test
+    @WithUserDetails(value = "username1", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     public void givenEmptyPlaylistId_whenChangeVideoOrder_thenExpectBadRequestStatus() throws Exception {
         //arrange
         String playlistId = String.valueOf(playlist2.getId());
@@ -416,6 +453,7 @@ public class PlaylistVideoControllerIntegrationTest extends MySqlIntegrationTest
     }
 
     @Test
+    @WithUserDetails(value = "username1", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     public void givenInvalidFromOrderNo_whenChangeVideoOrder_thenExpectBadRequestStatus() throws Exception {
         //arrange
         String playlistId = String.valueOf(playlist1.getId());
@@ -429,6 +467,7 @@ public class PlaylistVideoControllerIntegrationTest extends MySqlIntegrationTest
     }
 
     @Test
+    @WithUserDetails(value = "username1", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     public void givenInvalidToOrderNo_whenChangeVideoOrder_thenExpectBadRequestStatus() throws Exception {
         //arrange
         String playlistId = String.valueOf(playlist1.getId());
@@ -442,6 +481,7 @@ public class PlaylistVideoControllerIntegrationTest extends MySqlIntegrationTest
     }
 
     @Test
+    @WithUserDetails(value = "username1", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     public void givenEqualOrderNumbers_whenChangeVideoOrder_thenExpectBadRequestStatus() throws Exception {
         //arrange
         String playlistId = String.valueOf(playlist1.getId());
@@ -455,6 +495,7 @@ public class PlaylistVideoControllerIntegrationTest extends MySqlIntegrationTest
     }
 
     @Test
+    @WithUserDetails(value = "username1", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     public void givenPlaylistWithOneVideo_whenChangeVideoOrder_thenExpectBadRequestStatus() throws Exception {
         //arrange
         PlaylistVideo pv7 = playlistVideoRepository.save(PlaylistVideo.builder().playlist(playlist2).video(video1).orderNo(1).build());

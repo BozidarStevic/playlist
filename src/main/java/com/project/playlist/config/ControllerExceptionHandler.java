@@ -60,6 +60,19 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(ErrorResponse.builder().type(ErrorType.NOT_FOUND).errorCode(NOT_FOUND).status(status).path(request.getRequestURI()).message(cause.getMessage()).build(), status);
     }
 
+    @ExceptionHandler(RoleNotFoundException.class)
+    @ResponseBody
+    public HttpEntity<ErrorResponse> handleRoleNotFoundException(HttpServletRequest request, RoleNotFoundException cause) {
+        log.error(ERROR_PROCESSING_REQUEST_TEMPLATE, cause.getClass(), cause.getMessage());
+
+        HttpStatus status = HttpStatus.NOT_FOUND;
+        ResponseStatus responseStatus = AnnotationUtils.findAnnotation(cause.getClass(), ResponseStatus.class);
+        if (responseStatus != null) {
+            status = responseStatus.code();
+        }
+        return new ResponseEntity<>(ErrorResponse.builder().type(ErrorType.NOT_FOUND).errorCode(NOT_FOUND).status(status).path(request.getRequestURI()).message(cause.getMessage()).build(), status);
+    }
+
     @ExceptionHandler(PlaylistNotFoundException.class)
     @ResponseBody
     public HttpEntity<ErrorResponse> handlePlaylistNotFoundException(HttpServletRequest request, PlaylistNotFoundException cause) {

@@ -3,8 +3,10 @@ package com.project.playlist.service.impl;
 import com.project.playlist.dto.UserRequest;
 import com.project.playlist.exceptions.UserAlreadyExistsException;
 import com.project.playlist.exceptions.UserNotFoundException;
+import com.project.playlist.model.Role;
 import com.project.playlist.model.User;
 import com.project.playlist.repository.UserRepository;
+import com.project.playlist.service.RoleService;
 import com.project.playlist.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,9 +15,11 @@ import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -28,16 +32,18 @@ public class UserServiceTest {
     private UserService userService;
     @Mock
     private UserRepository userRepositoryMock;
-    private UserRequest userRequest;
-    private User user;
-    private User actualUser;
-    private UserRequest existingUserRequest;
-    private User existingUser;
+    @Mock
+    private RoleService roleServiceMock;
+    @Mock
+    private PasswordEncoder passwordEncoderMock;
+    private UserRequest userRequest, existingUserRequest;
+    private User user, actualUser, existingUser;
+    private Role existingRole, roleToSave;
     private final Long invalidUserId = 111L;
 
     @BeforeEach
     void setUp() {
-        userService = new UserServiceImpl(userRepositoryMock);
+        userService = new UserServiceImpl(passwordEncoderMock, userRepositoryMock, roleServiceMock);
         userRequest = UserRequest.builder()
                 .email("email")
                 .password("pass")
@@ -48,12 +54,20 @@ public class UserServiceTest {
                 .password("pass")
                 .username("existingUsername")
                 .build();
+        roleToSave = Role.builder()
+                .name("ROLE_USER")
+                .build();
+        existingRole = Role.builder()
+                .id(1L)
+                .name("ROLE_USER")
+                .build();
         user = User.builder()
                 .username("nonexistentUsername")
                 .email("email")
                 .password("pass")
                 .playlists(new ArrayList<>())
                 .videos(new ArrayList<>())
+                .roles(Set.of(existingRole))
                 .build();
         existingUser = User.builder()
                 .id(1L)
@@ -62,6 +76,7 @@ public class UserServiceTest {
                 .password("pass")
                 .playlists(new ArrayList<>())
                 .videos(new ArrayList<>())
+                .roles(Set.of(existingRole))
                 .build();
     }
 
@@ -69,6 +84,10 @@ public class UserServiceTest {
     void givenUserRequest_whenRegisterUser_thenReturnRegisteredUser() {
         //given
         lenient().when(userRepositoryMock.findByUsername(eq("nonexistentUsername"))).thenReturn(Optional.empty());
+        lenient().when(roleServiceMock.existsRoleByName(eq("ROLE_USER"))).thenReturn(true);
+        lenient().when(roleServiceMock.getRoleByName(eq("ROLE_USER"))).thenReturn(existingRole);
+        lenient().when(passwordEncoderMock.encode(eq(userRequest.getPassword()))).thenReturn("encodedPass");
+        user.setPassword("encodedPass");
         lenient().when(userRepositoryMock.save(user)).thenReturn(user);
         //when
         actualUser = userService.registerUser(userRequest);
@@ -86,6 +105,23 @@ public class UserServiceTest {
         //then
         verifyAll(0, 0, 0);
         assertThrows(UserAlreadyExistsException.class, executable);
+    }
+
+    @Test
+    void givenNonexistentRoleName_whenRegisterUser_thenReturnRegisteredUser() {
+        //given
+        lenient().when(userRepositoryMock.findByUsername(eq("nonexistentUsername"))).thenReturn(Optional.empty());
+        lenient().when(roleServiceMock.existsRoleByName(eq("ROLE_USER"))).thenReturn(false);
+        lenient().when(roleServiceMock.createRole(eq(roleToSave))).thenReturn(existingRole);
+        lenient().when(roleServiceMock.getRoleByName(eq("ROLE_USER"))).thenReturn(existingRole);
+        lenient().when(passwordEncoderMock.encode(eq(userRequest.getPassword()))).thenReturn("encodedPass");
+        user.setPassword("encodedPass");
+        lenient().when(userRepositoryMock.save(user)).thenReturn(user);
+        //when
+        actualUser = userService.registerUser(userRequest);
+        //then
+        verifyAll(1, 1, 0);
+        assertEquals(user, actualUser);
     }
 
     @Test
